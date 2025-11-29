@@ -4740,7 +4740,7 @@ async function seedDefaultData() {
         {
           name: 'Admin',
           description: 'System administrators with full access',
-          permissions: ['admin', 'dashboard', 'categories', 'departments', 'sales', 'payments', 'payment-dashboard', 'payment-vouchers', 'payment-voucher-list', 'payment-reports', 'category-voucher', 'category-voucher-list', 'category-voucher-edit', 'category-voucher-delete', 'reports', 'branches', 'groups', 'users', 'settings', 'suppliers', 'employees', 'employee-list'],
+          permissions: ['admin', 'dashboard', 'categories', 'departments', 'sales', 'payments', 'payment-dashboard', 'payment-vouchers', 'payment-voucher-list', 'payment-edit', 'payment-delete', 'payment-reports', 'category-voucher', 'category-voucher-list', 'category-voucher-edit', 'category-voucher-delete', 'reports', 'branches', 'groups', 'users', 'settings', 'suppliers', 'employees', 'employee-list'],
           isDefault: true
         },
         {
