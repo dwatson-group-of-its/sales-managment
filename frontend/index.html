@@ -572,14 +572,15 @@
            LOGIN SECTION STYLES
            ======================================== */
         
-        /* Login Section */
+        /* Login Section - Hidden by default, shown by JavaScript when needed */
         .login-section {
-            display: flex;
+            display: none;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             padding: 20px;
+            opacity: 0;
         }
         
         .login-card {
@@ -3057,6 +3058,23 @@
             background: linear-gradient(135deg, #4D4D4D 0%, #6c757d 100%);
         }
         
+        /* Shop Dashboard - Professional Color Theme */
+        #shopBranchCardsContainer .branch-kpi-item:has(.kpi-sales-label) {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        }
+        
+        #shopBranchCardsContainer .branch-kpi-item:has(.kpi-cost-label) {
+            background: linear-gradient(135deg, #475569 0%, #64748b 100%);
+        }
+        
+        #shopBranchCardsContainer .branch-kpi-item:has(.kpi-profit-label) {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+        
+        #shopBranchCardsContainer .branch-kpi-item:has(.kpi-margin-label) {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        }
+        
         /* Shop Sale Entry Field Styles */
         .kpi-gross-sale-label,
         .kpi-gross-sale-value {
@@ -3163,6 +3181,11 @@
         
         .branch-kpi-item:has(.kpi-discount-label) {
             background: linear-gradient(135deg, #ff9800 0%, #ffc107 100%);
+        }
+        
+        /* Shop Dashboard - Professional Color Theme for Discount */
+        #shopBranchCardsContainer .branch-kpi-item:has(.kpi-discount-label) {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
         }
         
         .branch-kpi-item:has(.kpi-discount-value-label) {
@@ -6417,23 +6440,30 @@
             }
         }
     </style>
-    <!-- Immediately hide login section on page load to prevent flash -->
+    <!-- Initially hide both sections to prevent flash - auth check will show the correct one -->
     <script>
-        // Run immediately to prevent login flash on page refresh
+        // Run immediately to prevent flash of wrong content
         (function() {
-            function hideLoginShowMain() {
+            function hideBothSections() {
                 const loginSection = document.getElementById('loginSection');
                 const mainApp = document.getElementById('mainApp');
-                if (loginSection) loginSection.style.display = 'none';
-                if (mainApp) mainApp.style.display = 'block';
+                // Hide both initially - checkAuthStatus will show the correct one
+                if (loginSection) {
+                    loginSection.style.display = 'none';
+                    loginSection.style.opacity = '0';
+                }
+                if (mainApp) {
+                    mainApp.style.display = 'none';
+                    mainApp.style.opacity = '0';
+                }
             }
             
             // Try immediately if DOM is already loaded
             if (document.readyState !== 'loading') {
-                hideLoginShowMain();
+                hideBothSections();
             }
             // Also set up for when DOM is ready
-            document.addEventListener('DOMContentLoaded', hideLoginShowMain);
+            document.addEventListener('DOMContentLoaded', hideBothSections);
         })();
     </script>
 </head>
@@ -6441,7 +6471,7 @@
     <!-- ========================================
          LOGIN SECTION
          ======================================== -->
-    <div id="loginSection" class="login-section" style="display: none;">
+    <div id="loginSection" class="login-section">
         <div class="login-card">
             <div class="login-header">
                     
@@ -6514,7 +6544,7 @@
     <!-- ========================================
          MAIN APPLICATION SECTION
          ======================================== -->
-    <div id="mainApp" class="main-app" style="display: block;">
+    <div id="mainApp" class="main-app" style="display: none; opacity: 0;">
         <!-- Loading Spinner -->
         <div class="loading-spinner" id="loadingSpinner">
             <div class="spinner-border text-primary" role="status">
@@ -10693,7 +10723,17 @@
                         throw new Error(`API endpoint returned non-JSON response for ${endpoint}`);
                     }
                 } catch (error) {
-                    console.error(`❌ API request failed for ${endpoint}:`, error);
+                    // Don't log 401 errors as errors when user is not authenticated (expected behavior)
+                    const isAuthError = error.message && error.message.includes('Authentication failed');
+                    const isAuthEndpoint = cleanEndpoint.startsWith('/auth/');
+                    
+                    // Only log as error if it's not an expected auth failure on non-auth endpoints
+                    if (!isAuthError || isAuthEndpoint) {
+                        console.error(`❌ API request failed for ${endpoint}:`, error);
+                    } else {
+                        // Silently handle expected auth failures for non-auth endpoints
+                        // This prevents console spam when user is not logged in
+                    }
                     throw error;
                 }
             }
@@ -11426,7 +11466,10 @@
             initTheme();
             
             // Check if user is already logged in
-            checkAuthStatus();
+            // Add small delay to ensure cookies are available after page load
+            setTimeout(() => {
+                checkAuthStatus();
+            }, 100);
             
             // Setup event listeners
             setupEventListeners();
@@ -11800,14 +11843,30 @@
         
         // Show login section
         function showLoginSection() {
-            document.getElementById('loginSection').style.display = 'flex';
-            document.getElementById('mainApp').style.display = 'none';
+            const loginSection = document.getElementById('loginSection');
+            const mainApp = document.getElementById('mainApp');
+            if (loginSection) {
+                loginSection.style.display = 'flex';
+                loginSection.style.opacity = '1';
+            }
+            if (mainApp) {
+                mainApp.style.display = 'none';
+                mainApp.style.opacity = '0';
+            }
         }
         
         // Show main app
         function showMainApp() {
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
+            const loginSection = document.getElementById('loginSection');
+            const mainApp = document.getElementById('mainApp');
+            if (loginSection) {
+                loginSection.style.display = 'none';
+                loginSection.style.opacity = '0';
+            }
+            if (mainApp) {
+                mainApp.style.display = 'block';
+                mainApp.style.opacity = '1';
+            }
             // Start inactivity watchdog after showing app
             startInactivityWatch();
             // Set default dates when main app is shown
@@ -11861,20 +11920,47 @@
                         }
                     }
                     
-                    // If it's a network error or server error, don't logout immediately
+                    // Check for authentication errors first
+                    if (error.message.includes('401') || 
+                        error.message.includes('403') ||
+                        error.message.includes('Authentication failed') ||
+                        error.message.includes('Invalid token') ||
+                        error.message.includes('Access denied') ||
+                        error.message.includes('No token provided')) {
+                        // Authentication failed - show login page
+                        console.warn('Authentication failed, showing login page:', error.message);
+                        showLoginSection();
+                        return;
+                    }
+                    
+                    // If it's a network error or server error, check if user was previously authenticated
+                    // If user was authenticated before, keep them logged in (might be temporary network issue)
                     if (error.message.includes('Failed to fetch') || 
                         error.message.includes('NetworkError') ||
                         error.message.includes('500') ||
                         error.message.includes('503')) {
-                        console.warn('Network error during auth check, keeping user logged in:', error.message);
-                        // Keep the user logged in and show main app
-                        showMainApp();
-                        // Don't load dashboard on network error - wait for user to manually refresh
-                        // Dashboard will load when user navigates to it or refreshes
+                        // Check if user was previously authenticated (has user data in appData)
+                        if (appData.currentUser && appData.currentUser.id) {
+                            console.warn('Network error during auth check, but user was previously authenticated. Keeping session.');
+                            // User was authenticated before - keep them logged in (might be temporary network issue)
+                            showMainApp();
+                            return;
+                        }
+                        console.warn('Network error during auth check, showing login page:', error.message);
+                        // No previous authentication - show login page
+                        showLoginSection();
                         return;
                     }
-                    // Only logout for actual authentication errors
-                    throw error;
+                    
+                    // Any other error - check if user was previously authenticated
+                    if (appData.currentUser && appData.currentUser.id) {
+                        console.warn('Error during auth check, but user was previously authenticated. Keeping session.');
+                        showMainApp();
+                        return;
+                    }
+                    console.warn('Unknown error during auth check, showing login page:', error.message);
+                    showLoginSection();
+                    return;
                 }
                 
                 // Debug: Log user permissions
@@ -12050,63 +12136,9 @@
             } catch (error) {
                 console.error('Authentication check failed:', error);
                 
-                // Only redirect to login for actual authentication errors (401, 403)
-                // MIGRATED: Cookie is cleared by logout endpoint, no need to clear localStorage
-                if (error.message.includes('401') || error.message.includes('403') || 
-                    error.message.includes('Authentication failed') || 
-                    error.message.includes('Invalid token')) {
-                    showLoginSection();
-                } else {
-                    // For other errors, keep user logged in
-                    console.warn('Non-auth error, keeping user logged in:', error.message);
-                    showMainApp();
-                    
-                    // Check if there's a hash in URL (for new tab support)
-                    const hash = window.location.hash.replace('#', '');
-                    if (hash && hash !== '' && hash !== 'null' && hash !== 'undefined') {
-                        // Delay slightly to ensure DOM is ready
-                        setTimeout(() => {
-                            const section = hash;
-                            
-                            // Validate section before proceeding
-                            if (!section || section === 'null' || section === 'undefined' || section === '') {
-                                console.error('❌ Invalid section from hash:', section);
-                                return;
-                            }
-                            
-                            const permissions = appData.currentUser?.permissions || [];
-                            
-                            // Check if user has permission for this section
-                            let hasPermission = false;
-                            if (['groups', 'users', 'settings'].includes(section)) {
-                                hasPermission = permissions.includes('admin');
-                            } else {
-                                hasPermission = permissions.includes(section) || permissions.includes('admin');
-                            }
-                            
-                            if (hasPermission) {
-                                showSection(section);
-                                
-                                // Update active state
-                                document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
-                                const activeLink = document.querySelector(`.sidebar .nav-link[data-section="${section}"]`);
-                                if (activeLink) {
-                                    activeLink.classList.add('active');
-                                }
-                            } else {
-                                // No permission for requested section, show dashboard instead
-                                if (typeof loadDashboard === 'function') {
-                                    loadDashboard();
-                                }
-                            }
-                        }, 100);
-                    } else {
-                        // No hash, load dashboard as default
-                        if (typeof loadDashboard === 'function') {
-                            loadDashboard();
-                        }
-                    }
-                }
+                // Show login page for any error - we can't verify authentication
+                // This prevents showing empty main app to unauthenticated users
+                showLoginSection();
             }
         }
         
@@ -18061,212 +18093,47 @@
                                     </h5>
                                 </div>
                                 <div class="card-body" style="padding: 20px;">
-                                    <!-- Branch KPIs - Shop Sale Entry Fields -->
+                                    <!-- Branch KPIs - Beautiful Professional Design with Colored Backgrounds (Same as Warehouse) -->
                                     <div class="mb-4 branch-main-kpis">
                                         <div class="branch-kpi-item">
-                                            <div class="branch-kpi-label kpi-gross-sale-label">
-                                                <i class="fas fa-shopping-cart me-2"></i>GROSS SALE
+                                            <div class="branch-kpi-label kpi-sales-label">
+                                                <i class="fas fa-shopping-cart me-2"></i>TOTAL SALE
                                             </div>
-                                            <div class="branch-kpi-value kpi-gross-sale-value">
-                                                ${totalGrossSale.toLocaleString()}
-                                            </div>
-                                        </div>
-                                        <div class="branch-kpi-item">
-                                            <div class="branch-kpi-label kpi-discount-value-label">
-                                                <i class="fas fa-tag me-2"></i>DISCOUNT VALUE
-                                            </div>
-                                            <div class="branch-kpi-value kpi-discount-value-value">
-                                                ${totalDiscountAmount.toLocaleString()}
-                                            </div>
-                                        </div>
-                                        <div class="branch-kpi-item">
-                                            <div class="branch-kpi-label kpi-discount-label">
-                                                <i class="fas fa-percent me-2"></i>DISCOUNT %
-                                            </div>
-                                            <div class="branch-kpi-value kpi-discount-value">
-                                                ${totalDiscountPercent.toFixed(2)}%
-                                            </div>
-                                        </div>
-                                        <div class="branch-kpi-item">
-                                            <div class="branch-kpi-label kpi-return-label">
-                                                <i class="fas fa-undo me-2"></i>RETURN
-                                            </div>
-                                            <div class="branch-kpi-value kpi-return-value">
-                                                ${totalReturn.toLocaleString()}
-                                            </div>
-                                        </div>
-                                        <div class="branch-kpi-item">
-                                            <div class="branch-kpi-label kpi-sale-value-label">
-                                                <i class="fas fa-money-bill-wave me-2"></i>SALE VALUE
-                                            </div>
-                                            <div class="branch-kpi-value kpi-sale-value-value">
-                                                ${totalSaleValue.toLocaleString()}
-                                            </div>
-                                        </div>
-                                        <div class="branch-kpi-item">
-                                            <div class="branch-kpi-label kpi-gst-label">
-                                                <i class="fas fa-receipt me-2"></i>GST
-                                            </div>
-                                            <div class="branch-kpi-value kpi-gst-value">
-                                                ${totalGST.toLocaleString()}
-                                            </div>
-                                        </div>
-                                        <div class="branch-kpi-item">
-                                            <div class="branch-kpi-label kpi-net-sale-label">
-                                                <i class="fas fa-chart-line me-2"></i>NET SALE
-                                            </div>
-                                            <div class="branch-kpi-value kpi-net-sale-value">
-                                                <strong>${totalNetSale.toLocaleString()}</strong>
+                                            <div class="branch-kpi-value kpi-sales-value">
+                                                ${totalNetSale.toLocaleString()}
                                             </div>
                                         </div>
                                         <div class="branch-kpi-item">
                                             <div class="branch-kpi-label kpi-cost-label">
-                                                <i class="fas fa-dollar-sign me-2"></i>COST
+                                                <i class="fas fa-money-bill-wave me-2"></i>TOTAL COST
                                             </div>
                                             <div class="branch-kpi-value kpi-cost-value">
                                                 ${totalCost.toLocaleString()}
                                             </div>
                                         </div>
                                         <div class="branch-kpi-item">
-                                            <div class="branch-kpi-label kpi-average-sale-label">
-                                                <i class="fas fa-calculator me-2"></i>AVERAGE SALE
+                                            <div class="branch-kpi-label kpi-profit-label">
+                                                <i class="fas fa-chart-line me-2"></i>TOTAL PROFIT
                                             </div>
-                                            <div class="branch-kpi-value kpi-average-sale-value">
-                                                ${averageSale.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            <div class="branch-kpi-value kpi-profit-value">
+                                                ${(totalNetSale - totalCost).toLocaleString()}
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    <!-- Department Breakdown (Hidden) -->
-                                    <div class="mt-3" id="categoryDetails-${branch._id}" style="display: none;">
-                                        <div class="row g-3">
-                                            ${Object.entries(departmentData)
-                                                .map(([deptId, dept]) => ({ deptId, dept }))
-                                                .sort((a, b) => (b.dept.netSale || 0) - (a.dept.netSale || 0))
-                                                .map(({ deptId, dept }, index) => {
-                                                const txnCount = branchSales.filter(sale => {
-                                                    const saleDepartmentId = (sale && sale.departmentId && sale.departmentId._id) ? sale.departmentId._id : sale.departmentId;
-                                                    return saleDepartmentId === deptId;
-                                                }).length;
-                                                const subDeptCount = Object.keys(dept.subDepartments || {}).length;
-                                                console.log(`Rendering Department: ${dept.name}, Sub-departments count: ${subDeptCount}`, dept.subDepartments);
-                                                return `
-                                                <div class="col-12">
-                                                    <div class="card" style="border: 1px solid #dee2e6; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                                                        <div class="card-header text-white" style="background: linear-gradient(135deg, #2c6e8a 0%, #4fb3d9 100%); padding: 12px 20px; position: relative;">
-                                                            <h6 class="mb-0 text-center" style="font-weight: 700; font-size: 0.95rem; padding: 0 60px 0 10px; text-shadow: 0 1px 2px rgba(0,0,0,0.1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: calc(100% - 70px); text-align: left; display: block; box-sizing: border-box;">${dept.name}</h6>
-                                                            <span class="badge position-absolute" style="background-color: rgba(255,255,255,0.2); border-radius: 15px; padding: 5px 12px; font-size: 0.75rem; top: 50%; right: 10px; transform: translateY(-50%); font-weight: 600; z-index: 1; flex-shrink: 0;">${txnCount} txns</span>
-                                                        </div>
-                                                        <div class="card-body" style="padding: 20px; background-color: #ffffff;">
-                                                            <!-- Department Summary -->
-                                                        <div class="row g-2 mb-3">
-                                                                <div class="col-12 col-sm-6 col-md-3">
-                                                                    <div class="branch-kpi-item">
-                                                                        <div class="branch-kpi-label kpi-sales-label">
-                                                                            GROSS SALE
-                                                                        </div>
-                                                                        <div class="branch-kpi-value kpi-sales-value">
-                                                                            ${(dept.grossSale || 0).toLocaleString()}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 col-sm-6 col-md-3">
-                                                                    <div class="branch-kpi-item">
-                                                                        <div class="branch-kpi-label">
-                                                                            DISCOUNT VALUE
-                                                                        </div>
-                                                                        <div class="branch-kpi-value">
-                                                                            ${(dept.discountAmount || 0).toLocaleString()}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 col-sm-6 col-md-3">
-                                                                    <div class="branch-kpi-item">
-                                                                        <div class="branch-kpi-label kpi-cost-label">
-                                                                            DISCOUNT %
-                                                                        </div>
-                                                                        <div class="branch-kpi-value kpi-cost-value">
-                                                                            ${(dept.discountPercent || 0).toFixed(2)}%
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 col-sm-6 col-md-3">
-                                                                    <div class="branch-kpi-item">
-                                                                        <div class="branch-kpi-label kpi-margin-label">
-                                                                            NET SALE
-                                                                        </div>
-                                                                        <div class="branch-kpi-value kpi-margin-value text-success">
-                                                                            <strong>${(dept.netSale || 0).toLocaleString()}</strong>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 col-sm-6 col-md-3">
-                                                                    <div class="branch-kpi-item">
-                                                                        <div class="branch-kpi-label">
-                                                                            RETURN
-                                                                        </div>
-                                                                        <div class="branch-kpi-value">
-                                                                            ${(dept.returnAmount || 0).toLocaleString()}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 col-sm-6 col-md-3">
-                                                                    <div class="branch-kpi-item">
-                                                                        <div class="branch-kpi-label kpi-profit-label">
-                                                                            SALE VALUE
-                                                                        </div>
-                                                                        <div class="branch-kpi-value kpi-profit-value">
-                                                                            ${(dept.saleValue || 0).toLocaleString()}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-12 col-sm-6 col-md-3">
-                                                                    <div class="branch-kpi-item">
-                                                                        <div class="branch-kpi-label">
-                                                                            GST
-                                                                        </div>
-                                                                        <div class="branch-kpi-value">
-                                                                            ${(dept.gst || 0).toLocaleString()}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            
-                                                            ${subDeptCount > 0 ? `
-                                                            <!-- Sub-Department Breakdown - Only Name and Net Sale -->
-                                                            <div class="border-top pt-3 mt-3">
-                                                                <h6 class="mb-2" style="font-size: 0.85rem; color: #6c757d;">
-                                                                    <i class="fas fa-layer-group me-2"></i>Sub-Departments (${subDeptCount})
-                                                                </h6>
-                                                                <div class="row g-2">
-                                                                    ${Object.entries(dept.subDepartments || {})
-                                                                        .map(([subDeptId, subDept]) => ({ subDeptId, subDept }))
-                                                                        .sort((a, b) => (b.subDept.netSale || 0) - (a.subDept.netSale || 0))
-                                                                        .map(({ subDeptId, subDept }) => {
-                                                                        console.log(`Rendering sub-dept: ${subDept.name}, Net Sale: ${subDept.netSale}`);
-                                                                        return `
-                                                                        <div class="col-12">
-                                                                            <div class="card" style="border: 1px solid #e9ecef; border-radius: 8px; background-color: #f8f9fa;">
-                                                                                <div class="card-body p-2">
-                                                                                    <div class="d-flex justify-content-between align-items-center">
-                                                                                        <strong style="font-size: 0.85rem;">${subDept.name || 'Unknown'}</strong>
-                                                                                        <span class="badge bg-success" style="font-size: 0.85rem; padding: 5px 10px;">
-                                                                                            Net Sale: ${(subDept.netSale || 0).toLocaleString()}
-                                                                                        </span>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    `;
-                                                                    }).join('')}
-                                                                </div>
-                                                            </div>
-                                                            ` : '<div class="text-muted text-center py-2" style="font-size: 0.85rem;">No sub-departments found</div>'}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            `;
-                                            }).join('')}
+                                        <div class="branch-kpi-item">
+                                            <div class="branch-kpi-label kpi-discount-label">
+                                                <i class="fas fa-tag me-2"></i>BRANCH DISC %
+                                            </div>
+                                            <div class="branch-kpi-value kpi-discount-value">
+                                                ${totalDiscountPercent.toFixed(1)}%
+                                            </div>
+                                        </div>
+                                        <div class="branch-kpi-item">
+                                            <div class="branch-kpi-label kpi-margin-label">
+                                                <i class="fas fa-percentage me-2"></i>MARGIN
+                                            </div>
+                                            <div class="branch-kpi-value kpi-margin-value">
+                                                ${totalNetSale > 0 ? (((totalNetSale - totalCost) / totalNetSale * 100).toFixed(1)) : 0}%
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -18467,9 +18334,9 @@
                             return;
                         }
                         
-                        console.log(`Toggling department details for branch: ${branchId}`);
+                        console.log(`Toggling department details for branch: ${branchId} (${tabPrefix} dashboard)`);
                         console.log(`Target div classes:`, targetDiv.className);
-                        console.log(`Target div is visible:`, targetDiv.classList.contains('show'));
+                        console.log(`Target div innerHTML length:`, targetDiv.innerHTML.length);
                         
                         // Use manual toggle for reliability
                         const isCurrentlyVisible = targetDiv.classList.contains('show') || 
@@ -18477,27 +18344,40 @@
                                                    window.getComputedStyle(targetDiv).display !== 'none';
                         
                         console.log(`Current visibility state:`, isCurrentlyVisible);
+                        console.log(`Department data count:`, targetDiv.querySelectorAll('.col-12').length);
                         
                         if (isCurrentlyVisible) {
                             // Collapse
                             targetDiv.classList.remove('show');
+                            targetDiv.classList.add('collapse');
                             targetDiv.style.display = 'none';
-                            targetDiv.style.overflow = 'hidden';
+                            targetDiv.style.maxHeight = '';
+                            targetDiv.style.height = '';
                             if (icon) {
                         icon.classList.remove('fa-chevron-up');
                         icon.classList.add('fa-chevron-down');
                             }
                             console.log(`Collapsed department details for branch: ${branchId}`);
                     } else {
-                            // Expand
+                            // Expand - Use Bootstrap collapse properly
+                            // Remove inline display:none first
+                            targetDiv.style.display = '';
+                            // Use Bootstrap's collapse show class
                             targetDiv.classList.add('show');
+                            targetDiv.classList.remove('collapse');
+                            // Force display
                             targetDiv.style.display = 'block';
-                            targetDiv.style.overflow = 'visible';
+                            targetDiv.style.maxHeight = 'none';
+                            targetDiv.style.height = 'auto';
+                            
                             if (icon) {
                         icon.classList.remove('fa-chevron-down');
                         icon.classList.add('fa-chevron-up');
                             }
                             console.log(`Expanded department details for branch: ${branchId}`);
+                            console.log(`Div classes:`, targetDiv.className);
+                            console.log(`Div display:`, window.getComputedStyle(targetDiv).display);
+                            console.log(`Div height:`, targetDiv.offsetHeight);
                     }
                 });
             });
@@ -21622,6 +21502,11 @@ sortedBranches.forEach(data => {
         
         function loadDepartmentBranches() {
             // MIGRATED: No longer checking localStorage - authentication handled by API
+            // Check if user is authenticated before making API call
+            if (!appData.currentUser) {
+                // User not authenticated yet - skip loading branches
+                return;
+            }
             console.log('🔄 Loading department branches...');
             api.getBranches().then(allBranches => {
                 console.log('📊 All branches loaded:', allBranches?.length || 0, 'items');
@@ -21662,6 +21547,11 @@ sortedBranches.forEach(data => {
                     });
                 }
             }).catch(error => {
+                // Silently handle authentication errors - user might not be logged in
+                if (error.message && error.message.includes('Authentication failed')) {
+                    // User not authenticated - this is expected, don't show error
+                    return;
+                }
                 console.error('Error loading branches:', error);
                 showNotification('Failed to load branches', 'error');
             });
@@ -37412,6 +37302,16 @@ sortedBranches.forEach(data => {
                         document.querySelectorAll('.company-name').forEach(el => { el.textContent = settingsData.companyName; });
                     }
                 }).catch(err => {
+                    // Silently handle authentication errors - user is not logged in yet
+                    // This is expected behavior, don't log as error
+                    if (err.message && err.message.includes('Authentication failed')) {
+                        // User not authenticated - this is normal on login page
+                        if (!savedTheme) {
+                            applyTheme('light');
+                        }
+                        return;
+                    }
+                    // For other errors, still apply default theme
                     if (!savedTheme) {
                         applyTheme('light');
                     }
@@ -40516,4 +40416,6 @@ sortedBranches.forEach(data => {
             } else {
                 setTimeout(init, 0);
             }
+        }
+
         }

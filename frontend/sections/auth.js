@@ -358,8 +358,14 @@ function switchToSignup() {
 function showLoginSection() {
   const loginSection = document.getElementById('loginSection');
   const mainApp = document.getElementById('mainApp');
-  if (loginSection) loginSection.style.display = 'flex';
-  if (mainApp) mainApp.style.display = 'none';
+  if (loginSection) {
+    loginSection.style.display = 'flex';
+    loginSection.style.opacity = '1';
+  }
+  if (mainApp) {
+    mainApp.style.display = 'none';
+    mainApp.style.opacity = '0';
+  }
 
   try {
     const url = (typeof window.LOGIN_LOGO_URL === 'string' && window.LOGIN_LOGO_URL.trim()) ? window.LOGIN_LOGO_URL.trim() : 'assets/dw-logo.png';
@@ -374,8 +380,14 @@ function showLoginSection() {
 function showMainApp() {
   const loginSection = document.getElementById('loginSection');
   const mainApp = document.getElementById('mainApp');
-  if (loginSection) loginSection.style.display = 'none';
-  if (mainApp) mainApp.style.display = 'block';
+  if (loginSection) {
+    loginSection.style.display = 'none';
+    loginSection.style.opacity = '0';
+  }
+  if (mainApp) {
+    mainApp.style.display = 'block';
+    mainApp.style.opacity = '1';
+  }
   if (typeof startInactivityWatch === 'function') startInactivityWatch();
   setTimeout(() => {
     if (typeof setDefaultDates === 'function') setDefaultDates();
@@ -387,15 +399,20 @@ function showMainApp() {
 // We'll check auth status via API call instead
 function initializeDisplayState() {
   // MIGRATED: Token is in httpOnly cookie, not localStorage
-  // Keep main app visible during auth check to prevent login flash on page refresh
-  // Only show login if authentication actually fails
+  // Hide both sections initially to prevent flash of wrong content
+  // Auth check will show the appropriate one after verification
   const loginSection = document.getElementById('loginSection');
   const mainApp = document.getElementById('mainApp');
   
-  // Keep main app visible (or hidden but not showing login) until auth check completes
-  // This prevents the login page flash when refreshing an authenticated page
-  if (loginSection) loginSection.style.display = 'none';
-  if (mainApp) mainApp.style.display = 'block';
+  // Hide both initially - checkAuthStatus will show the correct one
+  if (loginSection) {
+    loginSection.style.display = 'none';
+    loginSection.style.opacity = '0';
+  }
+  if (mainApp) {
+    mainApp.style.display = 'none';
+    mainApp.style.opacity = '0';
+  }
 }
 
 let retryCount = 0;
@@ -407,17 +424,28 @@ async function checkAuthStatus(retryAttempt = 0) {
   try {
     // MIGRATED: No longer checking localStorage for token
     // Token is now in httpOnly cookie, automatically sent with requests
-    // Keep main app visible during auth check to prevent login flash
+    // Keep both hidden initially - only show after auth check completes
     const loginSection = document.getElementById('loginSection');
     const mainApp = document.getElementById('mainApp');
-    if (loginSection) loginSection.style.display = 'none';
-    if (mainApp) mainApp.style.display = 'block';
+    
+    // Don't show anything yet - wait for auth check to complete
+    // This prevents showing dashboard to unauthenticated users
 
     let user;
     try {
       // This will automatically include the httpOnly cookie if it exists
       user = await window.api.getCurrentUser();
       retryCount = 0;
+      
+      // User is authenticated - now show main app
+      if (mainApp) {
+        mainApp.style.display = 'block';
+        mainApp.style.opacity = '1';
+      }
+      if (loginSection) {
+        loginSection.style.display = 'none';
+        loginSection.style.opacity = '0';
+      }
     } catch (error) {
       if (error.message && error.message.includes('Too many requests')) {
         if (retryAttempt < maxRetries) {
@@ -435,18 +463,84 @@ async function checkAuthStatus(retryAttempt = 0) {
         }
       }
 
+      // Check for authentication errors first (401, 403, etc.)
+      if (error.message.includes('401') || 
+          error.message.includes('403') ||
+          error.message.includes('Authentication failed') ||
+          error.message.includes('Invalid token') ||
+          error.message.includes('Access denied') ||
+          error.message.includes('No token provided')) {
+        // Authentication failed - show login page
+        if (loginSection) {
+          loginSection.style.display = 'flex';
+          loginSection.style.opacity = '1';
+        }
+        if (mainApp) {
+          mainApp.style.display = 'none';
+          mainApp.style.opacity = '0';
+        }
+        return;
+      }
+
       if (error.message.includes('Failed to fetch') ||
           error.message.includes('NetworkError') ||
           error.message.includes('500') ||
           error.message.includes('503')) {
-        showMainApp();
+        // Network error - check if user was previously authenticated
+        // If user was authenticated before, keep them logged in (might be temporary network issue)
+        if (window.appData && window.appData.currentUser && window.appData.currentUser.id) {
+          console.warn('Network error during auth check, but user was previously authenticated. Keeping session.');
+          // User was authenticated before - keep them logged in
+          if (mainApp) {
+            mainApp.style.display = 'block';
+            mainApp.style.opacity = '1';
+          }
+          if (loginSection) {
+            loginSection.style.display = 'none';
+            loginSection.style.opacity = '0';
+          }
+          return;
+        }
+        // No previous authentication - show login page
+        if (loginSection) {
+          loginSection.style.display = 'flex';
+          loginSection.style.opacity = '1';
+        }
+        if (mainApp) {
+          mainApp.style.display = 'none';
+          mainApp.style.opacity = '0';
+        }
         return;
       }
-      throw error;
+      
+      // Any other error - check if user was previously authenticated
+      if (window.appData && window.appData.currentUser && window.appData.currentUser.id) {
+        console.warn('Error during auth check, but user was previously authenticated. Keeping session.');
+        if (mainApp) {
+          mainApp.style.display = 'block';
+          mainApp.style.opacity = '1';
+        }
+        if (loginSection) {
+          loginSection.style.display = 'none';
+          loginSection.style.opacity = '0';
+        }
+        return;
+      }
+      
+      // No previous authentication - show login page
+      if (loginSection) {
+        loginSection.style.display = 'flex';
+        loginSection.style.opacity = '1';
+      }
+      if (mainApp) {
+        mainApp.style.display = 'none';
+        mainApp.style.opacity = '0';
+      }
+      return;
     }
 
     window.appData.currentUser = { ...user, permissions: user.groupId?.permissions || [] };
-    showMainApp();
+    // Main app already shown above when user was authenticated
     if (typeof loadInitialData === 'function') loadInitialData();
 
     // Determine which section to show - ALWAYS prioritize URL hash first (most reliable for page refresh)
@@ -723,57 +817,10 @@ async function checkAuthStatus(retryAttempt = 0) {
     }
   } catch (error) {
     console.error('Authentication check failed:', error);
-    if (error.message.includes('401') || error.message.includes('403') ||
-        error.message.includes('Authentication failed') || error.message.includes('Invalid token')) {
-      window.api.clearToken();
-      showLoginSection();
-    } else {
-      showMainApp();
-      const hash = window.location.hash.replace('#', '');
-      if (hash && hash !== '') {
-        setTimeout(() => {
-          const section = hash;
-          const permissions = window.appData.currentUser?.permissions || [];
-          let hasPermission = false;
-          if (['groups', 'users', 'settings'].includes(section)) {
-            hasPermission = permissions.includes('admin');
-          } else {
-            hasPermission = permissions.includes(section) || permissions.includes('admin');
-          }
-          if (hasPermission) {
-          if (typeof showSection === 'function') showSection(section);
-          document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
-          const activeLink = document.querySelector(`.sidebar .nav-link[data-section="${section}"]`);
-          if (activeLink) activeLink.classList.add('active');
-        } else {
-          // Set URL hash to dashboard when no permission for requested section
-          if (window.location.hash !== '#dashboard') {
-            window.history.replaceState(null, null, '#dashboard');
-          }
-          
-          // Show dashboard section if no permission for requested section
-          if (typeof showSection === 'function') {
-            showSection('dashboard');
-            document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
-            const dashboardLink = document.querySelector('.sidebar .nav-link[data-section="dashboard"]');
-            if (dashboardLink) dashboardLink.classList.add('active');
-            // Activate warehouse dashboard tab
-            setTimeout(() => {
-              const warehouseTab = document.getElementById('warehouse-dashboard-tab');
-              if (warehouseTab && typeof window.bootstrap !== 'undefined') {
-                try {
-                  const tab = new window.bootstrap.Tab(warehouseTab);
-                  tab.show();
-                } catch (e) {
-                  console.warn('Could not show warehouse tab:', e);
-                }
-              }
-            }, 150);
-          }
-          if (typeof loadDashboard === 'function') loadDashboard(null, 'warehouse');
-        }
-      }, 100);
-    } else {
+    // Show login page for any error - we can't verify authentication
+    // This prevents showing empty main app to unauthenticated users
+    window.api.clearToken();
+    showLoginSection(); else {
       // Set URL hash to dashboard when no hash (default view after login)
       if (!window.location.hash || window.location.hash === '' || window.location.hash === '#') {
         window.history.replaceState(null, null, '#dashboard');

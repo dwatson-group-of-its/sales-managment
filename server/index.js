@@ -525,10 +525,12 @@ app.post('/api/auth/login', checkDatabaseConnection, async (req, res) => {
     // httpOnly prevents JavaScript access (XSS protection)
     // secure: true in production (HTTPS only)
     // sameSite: 'lax' prevents CSRF attacks while allowing normal navigation
+    // path: '/' makes cookie available for all paths on the domain
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
+      path: '/', // Make cookie available for all paths
       maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
     });
     
@@ -557,7 +559,8 @@ app.post('/api/auth/logout', authenticate, (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax'
+    sameSite: 'lax',
+    path: '/' // Must match the path used when setting the cookie
   });
   res.json({ message: 'Logged out successfully' });
 });
@@ -652,6 +655,7 @@ app.post('/api/auth/signup', checkDatabaseConnection, async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
+      path: '/', // Make cookie available for all paths
       maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
     });
     
