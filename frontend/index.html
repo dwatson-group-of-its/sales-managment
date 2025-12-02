@@ -10585,25 +10585,50 @@
         // ========================================
         
             // API Service Layer with Authentication
-            // MIGRATED: Now uses httpOnly cookies instead of localStorage tokens
-            // This provides better security (XSS protection) and works across tabs
+            // APIService class for handling API requests with Bearer token authentication
+            // Token is stored in localStorage and sent via Authorization header
             class APIService {
             constructor() {
                 this.baseURL = '/api';
-                // Token is now stored in httpOnly cookie, not localStorage
-                // No need to store token in memory
+                // Token is stored in localStorage for Bearer token authentication
             }
             
-            // Legacy method for backward compatibility (no-op now)
+            // Get token from localStorage
+            getToken() {
+                try {
+                    const token = localStorage.getItem('token');
+                    return token && token !== 'null' && token !== 'undefined' ? token : null;
+                } catch (e) {
+                    console.error('Error reading token from localStorage:', e);
+                    return null;
+                }
+            }
+            
+            // Set token in localStorage
             setToken(token) {
-                // Token is now in httpOnly cookie, no need to store in memory
-                // This method is kept for compatibility but does nothing
+                try {
+                    if (token && token !== 'null' && token !== 'undefined') {
+                        localStorage.setItem('token', token);
+                    } else {
+                        this.clearToken();
+                    }
+                } catch (e) {
+                    console.error('Error saving token to localStorage:', e);
+                }
             }
             
-            // Clear authentication token
+            // Clear authentication token from localStorage
             clearToken() {
-                // Token is cleared via logout endpoint which clears the cookie
-                // This method is kept for compatibility
+                try {
+                    localStorage.removeItem('token');
+                } catch (e) {
+                    console.error('Error clearing token from localStorage:', e);
+                }
+            }
+            
+            // Check if user is authenticated
+            isAuthenticated() {
+                return !!this.getToken();
             }
             
             // Retry mechanism for failed requests
@@ -10656,16 +10681,17 @@
                     headers['Content-Type'] = 'application/json';
                 }
                 
-                // MIGRATED: No longer using Authorization header
-                // Authentication is now handled via httpOnly cookies
-                // Cookies are automatically sent with credentials: 'include'
+                // Add Authorization header with Bearer token if token exists
+                const token = this.getToken();
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
                 
                 const mergedHeaders = { ...headers, ...(options.headers || {}) };
                 const config = {
                     ...options,
                     headers: mergedHeaders,
-                    // Include credentials (cookies) in all requests
-                    // This is required for httpOnly cookie authentication
+                    // Include credentials for CORS
                     credentials: 'include'
                 };
                 
@@ -10674,16 +10700,37 @@
                     
                     // Handle 401 Unauthorized specifically
                     if (response.status === 401) {
+                        // Try to get detailed error message
+                        let errorMsg = 'Authentication failed. Please login again.';
+                        try {
+                            const errorResponse = await response.clone().json();
+                            if (errorResponse && errorResponse.error) {
+                                errorMsg = errorResponse.error;
+                            }
+                        } catch (e) {
+                            // If JSON parsing fails, use default message
+                        }
+                        
+                        // Clear token on 401 error
+                        this.clearToken();
                         const isAuthEndpoint = cleanEndpoint.startsWith('/auth/');
-                        if (isAuthEndpoint) {
-                            this.clearToken();
-                            if (typeof showLoginSection === 'function') showLoginSection();
-                        } else {
+                        
+                        // Show notification and redirect to login
+                        if (!isAuthEndpoint) {
                             if (typeof showNotification === 'function') {
-                                showNotification('Unauthorized or session expired. Please login again.', 'error');
+                                const message = errorMsg.includes('expired') || errorMsg.includes('Token expired') 
+                                    ? 'Your session has expired. Please login again.' 
+                                    : 'Unauthorized. Please login again.';
+                                showNotification(message, 'error');
                             }
                         }
-                        throw new Error('Authentication failed. Please login again.');
+                        
+                        // Redirect to login for all 401 errors (except during login itself)
+                        if (typeof showLoginSection === 'function') {
+                            showLoginSection();
+                        }
+                        
+                        throw new Error(errorMsg);
                     }
                     
                     if (!response.ok) {
@@ -10706,9 +10753,14 @@
                                 errorMessage = text || `Request failed: ${response.status}`;
                             }
                         }
-                        if (response.status === 403 && typeof showNotification === 'function') {
-                            showNotification('Access denied. Admin privileges required.', 'error');
+                        
+                        // Handle 403 Forbidden
+                        if (response.status === 403) {
+                            if (typeof showNotification === 'function') {
+                                showNotification('Access denied. Insufficient permissions.', 'error');
+                            }
                         }
+                        
                         throw new Error(errorMessage);
                     }
                     
@@ -10739,17 +10791,50 @@
             }
             
             // Authentication methods
-            // MIGRATED: Tokens are now in httpOnly cookies, not response body
             async login(credentials) {
-                const response = await this.request('/auth/login', {
+                // Make login request without Authorization header
+                const cleanEndpoint = '/auth/login';
+                const url = `${this.baseURL}${cleanEndpoint}?_t=${Date.now()}`;
+                
+                const response = await fetch(url, {
                     method: 'POST',
-                    body: JSON.stringify(credentials)
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    },
+                    body: JSON.stringify(credentials),
+                    credentials: 'include'
                 });
                 
-                // Token is now set as httpOnly cookie by server
-                // Response contains user data and ok: true
-                if (response.ok && response.user) {
-                    return response;
+                if (!response.ok) {
+                    let errorMessage = `HTTP error! status: ${response.status}`;
+                    try {
+                        const errorResponse = await response.json();
+                        if (errorResponse && errorResponse.error) {
+                            errorMessage = errorResponse.error;
+                        }
+                    } catch (e) {
+                        const text = await response.text();
+                        errorMessage = text || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+                
+                const data = await response.json();
+                
+                // Save token to localStorage if present in response
+                if (data.token) {
+                    this.setToken(data.token);
+                } else if (data.user) {
+                    // If no token in response, check if we need to extract from cookie
+                    // For now, we'll rely on the backend returning token in response
+                    console.warn('Login response missing token field');
+                }
+                
+                // Response should contain user data and token
+                if (data.ok && data.user) {
+                    return data;
                 }
                 
                 throw new Error('Login failed: Invalid response');
@@ -10757,27 +10842,58 @@
             
             async logout() {
                 try {
-                    // Logout endpoint clears the httpOnly cookie
+                    // Call logout endpoint
                     await this.request('/auth/logout', {
                         method: 'POST'
                     });
                 } catch (error) {
                     console.error('Logout API call failed:', error);
+                } finally {
+                    // Always clear token from localStorage regardless of API response
+                    this.clearToken();
                 }
-                // Cookie is cleared by server, no need to clear localStorage
             }
             
             async signup(userData) {
                 try {
-                    const response = await this.request('/auth/signup', {
+                    // Make signup request without Authorization header
+                    const cleanEndpoint = '/auth/signup';
+                    const url = `${this.baseURL}${cleanEndpoint}?_t=${Date.now()}`;
+                    
+                    const response = await fetch(url, {
                         method: 'POST',
-                        body: JSON.stringify(userData)
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache',
+                            'Pragma': 'no-cache'
+                        },
+                        body: JSON.stringify(userData),
+                        credentials: 'include'
                     });
                     
-                    // Token is now set as httpOnly cookie by server
-                    // Response contains user data and ok: true
-                    if (response.ok && response.user) {
-                        return response;
+                    if (!response.ok) {
+                        let errorMessage = `HTTP error! status: ${response.status}`;
+                        try {
+                            const errorResponse = await response.json();
+                            if (errorResponse && errorResponse.error) {
+                                errorMessage = errorResponse.error;
+                            }
+                        } catch (e) {
+                            const text = await response.text();
+                            errorMessage = text || errorMessage;
+                        }
+                        throw new Error(errorMessage);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Save token to localStorage if present in response
+                    if (data.token) {
+                        this.setToken(data.token);
+                    }
+                    
+                    if (data.ok && data.user) {
+                        return data;
                     }
                     
                     throw new Error('Signup failed: Invalid response');

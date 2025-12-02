@@ -114,6 +114,12 @@ async function handleLogin(event) {
 
     const response = await window.api.login({ username, password });
 
+    // Token is automatically saved by APIService.login()
+    // Verify token was saved
+    if (!window.api.getToken()) {
+      console.warn('Warning: Token not found in localStorage after login');
+    }
+
     window.appData.currentUser = {
       ...response.user,
       permissions: response.user.permissions || response.user.groupId?.permissions || []
@@ -394,13 +400,8 @@ function showMainApp() {
   }, 100);
 }
 
-// Initialize display state - MIGRATED: No longer checks localStorage
-// Authentication is now handled via httpOnly cookies
-// We'll check auth status via API call instead
+// Initialize display state - Check localStorage for token
 function initializeDisplayState() {
-  // MIGRATED: Token is in httpOnly cookie, not localStorage
-  // Hide both sections initially to prevent flash of wrong content
-  // Auth check will show the appropriate one after verification
   const loginSection = document.getElementById('loginSection');
   const mainApp = document.getElementById('mainApp');
   
@@ -422,18 +423,31 @@ async function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)
 
 async function checkAuthStatus(retryAttempt = 0) {
   try {
-    // MIGRATED: No longer checking localStorage for token
-    // Token is now in httpOnly cookie, automatically sent with requests
-    // Keep both hidden initially - only show after auth check completes
     const loginSection = document.getElementById('loginSection');
     const mainApp = document.getElementById('mainApp');
+    
+    // Check if token exists in localStorage first
+    const token = window.api ? window.api.getToken() : null;
+    
+    // If no token, show login page immediately
+    if (!token) {
+      if (loginSection) {
+        loginSection.style.display = 'flex';
+        loginSection.style.opacity = '1';
+      }
+      if (mainApp) {
+        mainApp.style.display = 'none';
+        mainApp.style.opacity = '0';
+      }
+      return;
+    }
     
     // Don't show anything yet - wait for auth check to complete
     // This prevents showing dashboard to unauthenticated users
 
     let user;
     try {
-      // This will automatically include the httpOnly cookie if it exists
+      // This will include the Authorization header with Bearer token
       user = await window.api.getCurrentUser();
       retryCount = 0;
       
@@ -468,8 +482,14 @@ async function checkAuthStatus(retryAttempt = 0) {
           error.message.includes('403') ||
           error.message.includes('Authentication failed') ||
           error.message.includes('Invalid token') ||
+          error.message.includes('Token expired') ||
+          error.message.includes('expired') ||
           error.message.includes('Access denied') ||
           error.message.includes('No token provided')) {
+        // Clear token on authentication error
+        if (window.api) {
+          window.api.clearToken();
+        }
         // Authentication failed - show login page
         if (loginSection) {
           loginSection.style.display = 'flex';
@@ -819,37 +839,31 @@ async function checkAuthStatus(retryAttempt = 0) {
     console.error('Authentication check failed:', error);
     // Show login page for any error - we can't verify authentication
     // This prevents showing empty main app to unauthenticated users
-    window.api.clearToken();
-    showLoginSection(); else {
-      // Set URL hash to dashboard when no hash (default view after login)
-      if (!window.location.hash || window.location.hash === '' || window.location.hash === '#') {
-        window.history.replaceState(null, null, '#dashboard');
-      }
-      
-      // Show dashboard section when no hash (default view after login)
-      if (typeof showSection === 'function') {
-        showSection('dashboard');
-        document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
-        const dashboardLink = document.querySelector('.sidebar .nav-link[data-section="dashboard"]');
-        if (dashboardLink) dashboardLink.classList.add('active');
-        // Activate warehouse dashboard tab
-        setTimeout(() => {
-          const warehouseTab = document.getElementById('warehouse-dashboard-tab');
-          if (warehouseTab && typeof window.bootstrap !== 'undefined') {
-            try {
-              const tab = new window.bootstrap.Tab(warehouseTab);
-              tab.show();
-            } catch (e) {
-              console.warn('Could not show warehouse tab:', e);
-            }
-          }
-        }, 150);
-      }
-      if (typeof loadDashboard === 'function') loadDashboard(null, 'warehouse');
+    if (window.api) {
+      window.api.clearToken();
     }
+    showLoginSection();
+  }
+}
+
+// Initialize display on page load
+if (typeof window !== 'undefined') {
+  // Wait for DOM to be ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeDisplayState();
+      if (typeof checkAuthStatus === 'function') {
+        checkAuthStatus();
+      }
+    });
+  } else {
+    initializeDisplayState();
+    if (typeof checkAuthStatus === 'function') {
+      checkAuthStatus();
     }
   }
 }
+
 
 // Expose to global for existing inline script usage
 window.setupLoginForm = setupLoginForm;

@@ -12,11 +12,21 @@ if (!JWT_SECRET) {
 export const authenticate = async (req, res, next) => {
   res.setHeader('Content-Type', 'application/json');
   try {
-    // Priority 1: Check httpOnly cookie (new secure method)
-    // Priority 2: Fallback to Authorization header (for backward compatibility during migration)
-    const token = req.cookies?.token || req.header('Authorization')?.replace('Bearer ', '');
+    // Priority 1: Check Authorization header (Bearer token)
+    // Priority 2: Fallback to httpOnly cookie for backward compatibility
+    let token = null;
     
+    const authHeader = req.header('Authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.replace('Bearer ', '').trim();
+    }
+    
+    // Fallback to cookie if no Authorization header
     if (!token) {
+      token = req.cookies?.token;
+    }
+    
+    if (!token || token === 'null' || token === 'undefined' || token === '') {
       return res.status(401).json({ error: 'Access denied. No token provided.' });
     }
     
@@ -35,6 +45,12 @@ export const authenticate = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Authentication error:', error);
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired. Please login again.' });
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Invalid token.' });
+    }
     res.status(401).json({ error: 'Invalid token.' });
   }
 };
