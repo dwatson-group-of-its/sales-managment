@@ -521,22 +521,10 @@ app.post('/api/auth/login', checkDatabaseConnection, async (req, res) => {
     // Generate JWT token
     const token = jwt.sign({ id: user._id }, env.JWT_SECRET, { expiresIn: '7d' });
     
-    // Set httpOnly cookie for secure token storage
-    // httpOnly prevents JavaScript access (XSS protection)
-    // secure: true in production (HTTPS only)
-    // sameSite: 'lax' prevents CSRF attacks while allowing normal navigation
-    // path: '/' makes cookie available for all paths on the domain
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/', // Make cookie available for all paths
-      maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
-    });
-    
-    // Return user data (token is now in cookie, not response body)
+    // Return user data and token in response body for Bearer token authentication
     res.json({
       ok: true,
+      token: token,
       user: {
         id: user._id,
         username: user.username,
@@ -555,13 +543,8 @@ app.post('/api/auth/login', checkDatabaseConnection, async (req, res) => {
 
 // User Logout
 app.post('/api/auth/logout', authenticate, (req, res) => {
-  // Clear the httpOnly cookie
-  res.clearCookie('token', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/' // Must match the path used when setting the cookie
-  });
+  // Token is stored in localStorage on frontend, cleared by frontend
+  // Backend just confirms logout
   res.json({ message: 'Logged out successfully' });
 });
 
@@ -650,18 +633,10 @@ app.post('/api/auth/signup', checkDatabaseConnection, async (req, res) => {
     // Generate JWT token
     const token = jwt.sign({ id: newUser._id }, env.JWT_SECRET, { expiresIn: '7d' });
     
-    // Set httpOnly cookie for secure token storage
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/', // Make cookie available for all paths
-      maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
-    });
-    
     res.status(201).json({
       message: 'User registered successfully',
       ok: true,
+      token: token,
       user: {
         id: newUser._id,
         username: newUser.username,
