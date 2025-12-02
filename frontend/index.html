@@ -5214,6 +5214,174 @@
             color: var(--primary-color);
         }
         
+        /* ========================================
+           DASHBOARD VISUAL DIFFERENTIATION STYLES
+           ======================================== */
+        
+        /* Warehouse Dashboard - Blue/Teal Theme */
+        #warehouse-dashboard-content {
+            background: linear-gradient(135deg, #e6f3ff 0%, #f0f8ff 100%);
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        #warehouse-dashboard-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #0d6efd 0%, #17a2b8 50%, #0dcaf0 100%);
+            border-radius: 8px 8px 0 0;
+        }
+        
+        #warehouse-dashboard-tab.nav-link {
+            color: #495057;
+            border-color: transparent;
+        }
+        
+        #warehouse-dashboard-tab.nav-link:hover {
+            color: #0d6efd;
+            border-color: #0d6efd #0d6efd transparent;
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+        
+        #warehouse-dashboard-tab.nav-link.active {
+            color: #fff;
+            background-color: #0d6efd;
+            border-color: #0d6efd #0d6efd transparent;
+        }
+        
+        #warehouse-dashboard-tab.nav-link.active i {
+            color: #fff;
+        }
+        
+        /* Warehouse Dashboard Card Headers */
+        #warehouse-dashboard-content .card-header {
+            background: linear-gradient(135deg, #0d6efd 0%, #17a2b8 100%);
+            color: #fff;
+            border-bottom: 2px solid #0a58ca;
+        }
+        
+        #warehouse-dashboard-content .card-header h5,
+        #warehouse-dashboard-content .card-header h6 {
+            color: #fff;
+        }
+        
+        #warehouse-dashboard-content .card {
+            border-left: 3px solid #0d6efd;
+        }
+        
+        /* Warehouse Dashboard Section Titles */
+        #warehouse-dashboard-content .section-title {
+            color: #0d6efd;
+        }
+        
+        #warehouse-dashboard-content .section-title i {
+            color: #17a2b8;
+        }
+        
+        /* Warehouse Dashboard Buttons */
+        #warehouse-dashboard-content .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        
+        #warehouse-dashboard-content .btn-primary:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+        
+        /* Shop Dashboard - Orange/Red Theme */
+        #shop-dashboard-content {
+            background: linear-gradient(135deg, #fff5e6 0%, #ffe6cc 100%);
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        #shop-dashboard-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #dc2626 0%, #f97316 50%, #fb923c 100%);
+            border-radius: 8px 8px 0 0;
+        }
+        
+        #shop-dashboard-tab.nav-link {
+            color: #495057;
+            border-color: transparent;
+        }
+        
+        #shop-dashboard-tab.nav-link:hover {
+            color: #dc2626;
+            border-color: #dc2626 #dc2626 transparent;
+            background-color: rgba(220, 38, 38, 0.1);
+        }
+        
+        #shop-dashboard-tab.nav-link.active {
+            color: #fff;
+            background-color: #dc2626;
+            border-color: #dc2626 #dc2626 transparent;
+        }
+        
+        #shop-dashboard-tab.nav-link.active i {
+            color: #fff;
+        }
+        
+        /* Shop Dashboard Card Headers */
+        #shop-dashboard-content .card-header {
+            background: linear-gradient(135deg, #dc2626 0%, #f97316 100%);
+            color: #fff;
+            border-bottom: 2px solid #b91c1c;
+        }
+        
+        #shop-dashboard-content .card-header h5,
+        #shop-dashboard-content .card-header h6 {
+            color: #fff;
+        }
+        
+        #shop-dashboard-content .card {
+            border-left: 3px solid #dc2626;
+        }
+        
+        /* Shop Dashboard Section Titles */
+        #shop-dashboard-content .section-title {
+            color: #dc2626;
+        }
+        
+        #shop-dashboard-content .section-title i {
+            color: #f97316;
+        }
+        
+        /* Shop Dashboard Buttons */
+        #shop-dashboard-content .btn-primary {
+            background-color: #dc2626;
+            border-color: #dc2626;
+        }
+        
+        #shop-dashboard-content .btn-primary:hover {
+            background-color: #b91c1c;
+            border-color: #991b1b;
+        }
+        
+        /* Dashboard Tab Container Styling */
+        #dashboardTabs {
+            border-bottom: 2px solid #dee2e6;
+            margin-bottom: 0;
+        }
+        
+        /* Override default tab pane padding when dashboard themed */
+        #warehouse-dashboard-content.tab-pane,
+        #shop-dashboard-content.tab-pane {
+            padding-top: 0;
+        }
+        
         /* Loading Spinner */
         .loading-spinner {
             display: none;
@@ -7071,6 +7239,9 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- Grand Total Section (All Categories) -->
+                            <div id="warehouseGrandTotalSection" class="mb-4" style="display: none;"></div>
                             
                             <!-- Category-Wise Summary -->
                             <div id="categorySummarySection" class="mb-4" style="display: none;">
@@ -19910,10 +20081,15 @@ sortedBranches.forEach(data => {
                 const invoicesContainer = document.getElementById('salesInvoicesContainer');
                 const salesTableBody = document.getElementById('salesListTableBody');
                 const summarySection = document.getElementById('categorySummarySection');
+                const grandTotalSection = document.getElementById('warehouseGrandTotalSection');
                 
                 if (invoicesContainer) invoicesContainer.innerHTML = '<div class="text-center text-muted p-4">Please select at least one date (From or To) to view sales list</div>';
                 if (salesTableBody) salesTableBody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">Please select at least one date (From or To) to view sales list</td></tr>';
                 if (summarySection) summarySection.style.display = 'none';
+                if (grandTotalSection) {
+                    grandTotalSection.style.display = 'none';
+                    grandTotalSection.innerHTML = '';
+                }
                 
                 // Reset pagination
                 const invoicesPagination = document.getElementById('salesInvoicesPagination');
@@ -19937,6 +20113,25 @@ sortedBranches.forEach(data => {
                 // Sort sales by date (newest first)
                 const sortedSales = [...salesData].sort((a, b) => new Date(b.date) - new Date(a.date));
                 
+                // Calculate grand totals from all sales data (not paginated) for table view and Grand Total card
+                const grandTotals = {
+                    totalSales: 0,
+                    totalCost: 0,
+                    totalProfit: 0,
+                    totalTransactions: salesData ? salesData.length : 0
+                };
+                
+                if (salesData && salesData.length > 0) {
+                    salesData.forEach(sale => {
+                        grandTotals.totalSales += parseFloat(sale.total || 0);
+                        grandTotals.totalCost += parseFloat(sale.costTotal || 0);
+                        grandTotals.totalProfit += parseFloat(sale.profit || 0);
+                    });
+                }
+                
+                // Render Grand Total Card immediately (before category summary)
+                renderWarehouseGrandTotal(grandTotals);
+                
                 // Calculate pagination
                 const startIndex = (page - 1) * perPage;
                 const endIndex = startIndex + perPage;
@@ -19945,8 +20140,8 @@ sortedBranches.forEach(data => {
                 // Load sales invoices (card view)
                 loadSalesInvoices(paginatedSales);
                 
-                // Load sales table (table view)
-                loadSalesTable(paginatedSales);
+                // Load sales table (table view) with grand totals
+                loadSalesTable(paginatedSales, grandTotals);
                 
                 // Load category-wise summary with filtered sales data (respects date range and filters)
                 loadCategorySummary(salesData);
@@ -20072,73 +20267,75 @@ sortedBranches.forEach(data => {
             // Clear and populate summary cards
             summaryCards.innerHTML = '';
             
-            Object.values(categoryData)
+            const categoriesWithSales = Object.values(categoryData)
                 .filter(cat => cat.sales > 0)
-                .sort((a, b) => b.sales - a.sales)
-                .forEach(category => {
-                    const card = document.createElement('div');
-                    card.className = 'col-12 mb-4';
-                    card.innerHTML = `
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-header bg-primary text-white">
-                                <div class="row align-items-center">
-                                    <div class="col-md-8">
-                                        <h6 class="mb-0"><i class="fas fa-folder me-2"></i>${category.name}</h6>
-                                    </div>
-                                    <div class="col-md-4 text-end">
-                                        <span class="badge bg-light text-dark">${category.transactions.length} Transactions</span>
-                                    </div>
+                .sort((a, b) => b.sales - a.sales);
+            
+            // Render category cards
+            categoriesWithSales.forEach(category => {
+                const card = document.createElement('div');
+                card.className = 'col-12 mb-4';
+                card.innerHTML = `
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-primary text-white">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h6 class="mb-0"><i class="fas fa-folder me-2"></i>${category.name}</h6>
                                 </div>
-                            </div>
-                            <div class="card-body">
-                                <!-- Summary Stats -->
-                                <div class="row mb-3 border-bottom pb-3">
-                                    <div class="col-md-6 text-center">
-                                        <small class="text-muted d-block">Total Sales</small>
-                                        <strong class="text-success fs-5">${category.sales.toLocaleString()}</strong>
-                                    </div>
-                                    <div class="col-md-6 text-center">
-                                        <small class="text-muted d-block">Total Cost</small>
-                                        <strong class="text-danger fs-5">${category.cost.toLocaleString()}</strong>
-                                    </div>
-                                </div>
-                                
-                                <!-- Transaction Details -->
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-hover">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Date</th>
-                                                <th>Branch</th>
-                                                <th class="text-end">Amount</th>
-                                                <th class="text-end">Cost</th>
-                                                <th class="text-end">Profit</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            ${category.transactions.map(trans => `
-                                                <tr>
-                                                    <td>${formatDate(trans.date)}</td>
-                                                    <td>${trans.branch}</td>
-                                                    <td class="text-end text-success">${trans.amount.toLocaleString()}</td>
-                                                    <td class="text-end text-danger">${trans.cost.toLocaleString()}</td>
-                                                    <td class="text-end ${trans.profit >= 0 ? 'text-success' : 'text-danger'}">
-                                                        <strong>${trans.profit.toLocaleString()}</strong>
-                                                    </td>
-                                                </tr>
-                                            `).join('')}
-                                        </tbody>
-                                    </table>
+                                <div class="col-md-4 text-end">
+                                    <span class="badge bg-light text-dark">${category.transactions.length} Transactions</span>
                                 </div>
                             </div>
                         </div>
-                    `;
-                    summaryCards.appendChild(card);
-                });
+                        <div class="card-body">
+                            <!-- Summary Stats -->
+                            <div class="row mb-3 border-bottom pb-3">
+                                <div class="col-md-6 text-center">
+                                    <small class="text-muted d-block">Total Sales</small>
+                                    <strong class="text-success fs-5">${category.sales.toLocaleString()}</strong>
+                                </div>
+                                <div class="col-md-6 text-center">
+                                    <small class="text-muted d-block">Total Cost</small>
+                                    <strong class="text-danger fs-5">${category.cost.toLocaleString()}</strong>
+                                </div>
+                            </div>
+                            
+                            <!-- Transaction Details -->
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Branch</th>
+                                            <th class="text-end">Amount</th>
+                                            <th class="text-end">Cost</th>
+                                            <th class="text-end">Profit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${category.transactions.map(trans => `
+                                            <tr>
+                                                <td>${formatDate(trans.date)}</td>
+                                                <td>${trans.branch}</td>
+                                                <td class="text-end text-success">${trans.amount.toLocaleString()}</td>
+                                                <td class="text-end text-danger">${trans.cost.toLocaleString()}</td>
+                                                <td class="text-end ${trans.profit >= 0 ? 'text-success' : 'text-danger'}">
+                                                    <strong>${trans.profit.toLocaleString()}</strong>
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                summaryCards.appendChild(card);
+            });
         }
         
         // Load sales table (table view) - New function
-        function loadSalesTable(sales) {
+        function loadSalesTable(sales, grandTotals = null) {
             const tableBody = document.getElementById('salesListTableBody');
             tableBody.innerHTML = '';
             
@@ -20168,6 +20365,112 @@ sortedBranches.forEach(data => {
                 `;
                 tableBody.appendChild(row);
             });
+            
+            // Add grand total row if grandTotals are provided
+            if (grandTotals) {
+                const grandTotalRow = document.createElement('tr');
+                grandTotalRow.className = 'table-info';
+                grandTotalRow.style.fontWeight = 'bold';
+                grandTotalRow.style.backgroundColor = '#d1ecf1';
+                
+                grandTotalRow.innerHTML = `
+                    <td style="display: none;"></td>
+                    <td colspan="3" class="text-end"><strong>Grand Total (All Categories):</strong></td>
+                    <td class="text-end"><strong>${grandTotals.totalSales.toLocaleString()}</strong></td>
+                    <td class="text-end"><strong>${grandTotals.totalCost.toLocaleString()}</strong></td>
+                    <td class="text-end ${grandTotals.totalProfit >= 0 ? 'text-success' : 'text-danger'}"><strong>${grandTotals.totalProfit.toLocaleString()}</strong></td>
+                    <td></td>
+                `;
+                tableBody.appendChild(grandTotalRow);
+            }
+        }
+        
+        // Render Warehouse Grand Total Card
+        function renderWarehouseGrandTotal(grandTotals) {
+            const grandTotalSection = document.getElementById('warehouseGrandTotalSection');
+            if (!grandTotalSection) {
+                console.error('❌ warehouseGrandTotalSection element not found in DOM');
+                return;
+            }
+            
+            console.log('🔍 renderWarehouseGrandTotal called', grandTotals);
+            
+            // Hide if no data
+            if (!grandTotals || !grandTotals.totalTransactions || grandTotals.totalTransactions === 0) {
+                console.log('⚠️ No transactions, hiding grand total');
+                grandTotalSection.style.display = 'none';
+                grandTotalSection.innerHTML = '';
+                return;
+            }
+            
+            // Show grand total - always render when there are transactions
+            console.log('✅ Rendering grand total with', grandTotals.totalTransactions, 'transactions');
+            grandTotalSection.style.display = 'block';
+            grandTotalSection.style.visibility = 'visible';
+            
+            // Warehouse sales: total = Gross Sale, costTotal = Cost, profit = Net Sale - Cost
+            // Since warehouse sales don't have discount/return/GST, Net Sale = Gross Sale
+            const grossSale = grandTotals.totalSales || 0;
+            const discount = 0; // Warehouse sales don't have discounts
+            const returnAmount = 0; // Warehouse sales don't have returns
+            const gst = 0; // Warehouse sales don't have GST
+            const cost = grandTotals.totalCost || 0;
+            const netSale = grossSale; // Net Sale = Gross Sale (no discounts/returns/GST)
+            
+            grandTotalSection.innerHTML = `
+                    <div class="card border-0 shadow-lg" style="border: 2px solid #ffc107 !important;">
+                        <div class="card-header bg-warning" style="padding: 0.5rem 1rem;">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h5 class="mb-0 fw-bold text-white"><i class="fas fa-calculator me-2"></i>GRAND TOTAL (All Categories)</h5>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <span class="badge bg-dark text-white">${grandTotals.totalTransactions} Total Transactions</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body" style="background-color: #fff9e6; padding: 0.75rem 1rem;">
+                            <div class="row mb-3">
+                                <div class="col-md-2 col-lg-2">
+                                    <div class="stat-box">
+                                        <div class="stat-label fw-bold">Gross Sale</div>
+                                        <div class="stat-value fw-bold" style="font-size: 1.2em;">${grossSale.toLocaleString()}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-lg-2">
+                                    <div class="stat-box">
+                                        <div class="stat-label fw-bold">Discount</div>
+                                        <div class="stat-value fw-bold" style="font-size: 1.2em;">${discount.toLocaleString()}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-lg-2">
+                                    <div class="stat-box">
+                                        <div class="stat-label fw-bold">Return</div>
+                                        <div class="stat-value fw-bold" style="font-size: 1.2em;">${returnAmount.toLocaleString()}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-lg-2">
+                                    <div class="stat-box">
+                                        <div class="stat-label fw-bold">GST</div>
+                                        <div class="stat-value fw-bold" style="font-size: 1.2em;">${gst.toLocaleString()}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-lg-2">
+                                    <div class="stat-box">
+                                        <div class="stat-label fw-bold">Cost</div>
+                                        <div class="stat-value fw-bold" style="font-size: 1.2em;">${cost.toLocaleString()}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-lg-2">
+                                    <div class="stat-box">
+                                        <div class="stat-label fw-bold">Net Sale</div>
+                                        <div class="stat-value fw-bold text-success" style="font-size: 1.3em;"><strong>${netSale.toLocaleString()}</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
         }
         
         // Update pagination

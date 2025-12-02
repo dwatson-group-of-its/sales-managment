@@ -420,8 +420,14 @@
             // Remove existing listeners by cloning
             const newCardBtn = deptCardViewBtn.cloneNode(true);
             const newTableBtn = deptTableViewBtn.cloneNode(true);
-            deptCardViewBtn.parentNode.replaceChild(newCardBtn, deptCardViewBtn);
-            newTableBtn.parentNode.replaceChild(newTableBtn, deptTableViewBtn);
+            
+            // Check if parentNode exists before replacing
+            if (deptCardViewBtn.parentNode) {
+              deptCardViewBtn.parentNode.replaceChild(newCardBtn, deptCardViewBtn);
+            }
+            if (deptTableViewBtn.parentNode) {
+              deptTableViewBtn.parentNode.replaceChild(newTableBtn, deptTableViewBtn);
+            }
             
             newCardBtn.addEventListener('click', function(e) {
               e.preventDefault();
