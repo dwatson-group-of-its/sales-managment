@@ -7241,7 +7241,9 @@
                             </div>
                             
                             <!-- Grand Total Section (All Categories) -->
-                            <div id="warehouseGrandTotalSection" class="mb-4" style="display: none;"></div>
+                            <div id="warehouseGrandTotalSection" class="mb-4" style="display: none;">
+                                <!-- Grand Total card will be populated dynamically -->
+                            </div>
                             
                             <!-- Category-Wise Summary -->
                             <div id="categorySummarySection" class="mb-4" style="display: none;">
@@ -10430,12 +10432,12 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="editSaleAmount" class="form-label">Sales Amount</label>
-                                <input type="number" class="form-control" id="editSaleAmount" min="0" step="0.01" required>
+                                <input type="number" class="form-control" id="editSaleAmount" step="0.01" required>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label for="editSaleCost" class="form-label">Cost Amount</label>
-                            <input type="number" class="form-control" id="editSaleCost" min="0" step="0.01" required>
+                                <input type="number" class="form-control" id="editSaleCost" step="0.01" required>
                         </div>
                         <div class="mb-3">
                             <label for="editSaleNotes" class="form-label">Notes</label>
@@ -10491,21 +10493,21 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="editDeptSaleGrossSale" class="form-label">Gross Sale</label>
-                                <input type="number" class="form-control" id="editDeptSaleGrossSale" min="0" step="0.01" required>
+                                <input type="number" class="form-control" id="editDeptSaleGrossSale" step="0.01" required>
                             </div>
                             <div class="col-md-6">
                                 <label for="editDeptSaleDiscount" class="form-label">Discount Amount</label>
-                                <input type="number" class="form-control" id="editDeptSaleDiscount" min="0" step="0.01" value="0">
+                                <input type="number" class="form-control" id="editDeptSaleDiscount" step="0.01" value="0">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="editDeptSaleReturn" class="form-label">Return Amount</label>
-                                <input type="number" class="form-control" id="editDeptSaleReturn" min="0" step="0.01" value="0">
+                                <input type="number" class="form-control" id="editDeptSaleReturn" step="0.01" value="0">
                             </div>
                             <div class="col-md-6">
                                 <label for="editDeptSaleGST" class="form-label">GST</label>
-                                <input type="number" class="form-control" id="editDeptSaleGST" min="0" step="0.01" value="0">
+                                <input type="number" class="form-control" id="editDeptSaleGST" step="0.01" value="0">
                             </div>
                         </div>
                         <div class="mb-3">
@@ -10514,7 +10516,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="editDeptSaleCost" class="form-label">Cost</label>
-                            <input type="number" class="form-control" id="editDeptSaleCost" min="0" step="0.01" placeholder="0.00" value="">
+                            <input type="number" class="form-control" id="editDeptSaleCost" step="0.01" placeholder="0.00" value="">
                         </div>
                         <div class="mb-3">
                             <label for="editDeptSaleNotes" class="form-label">Notes</label>
@@ -17448,14 +17450,14 @@
                             <div class="input-group">
                                 <span class="input-group-text">Sales</span>
                                 <input type="number" class="form-control category-sales" 
-                                       data-category="${category._id}" min="0" step="0.01" placeholder="0.00">
+                                       data-category="${category._id}" step="0.01" placeholder="0.00">
                             </div>
                         </div>
                         <div class="col-md-6 mb-2">
                             <div class="input-group">
                                 <span class="input-group-text">Cost</span>
                                 <input type="number" class="form-control category-cost" 
-                                       data-category="${category._id}" min="0" step="0.01" placeholder="0.00">
+                                       data-category="${category._id}" step="0.01" placeholder="0.00">
                             </div>
                         </div>
                     </div>
@@ -20395,18 +20397,18 @@ sortedBranches.forEach(data => {
             
             console.log('🔍 renderWarehouseGrandTotal called', grandTotals);
             
-            // Hide if no data
-            if (!grandTotals || !grandTotals.totalTransactions || grandTotals.totalTransactions === 0) {
-                console.log('⚠️ No transactions, hiding grand total');
-                grandTotalSection.style.display = 'none';
-                grandTotalSection.innerHTML = '';
-                return;
+            // Always show grand total card, even if no transactions (will show 0s)
+            if (!grandTotals) {
+                grandTotals = {
+                    totalSales: 0,
+                    totalCost: 0,
+                    totalProfit: 0,
+                    totalTransactions: 0
+                };
             }
             
-            // Show grand total - always render when there are transactions
-            console.log('✅ Rendering grand total with', grandTotals.totalTransactions, 'transactions');
-            grandTotalSection.style.display = 'block';
-            grandTotalSection.style.visibility = 'visible';
+            // Show grand total - always render
+            console.log('✅ Rendering grand total with', grandTotals.totalTransactions || 0, 'transactions');
             
             // Warehouse sales: total = Gross Sale, costTotal = Cost, profit = Net Sale - Cost
             // Since warehouse sales don't have discount/return/GST, Net Sale = Gross Sale
@@ -20416,6 +20418,7 @@ sortedBranches.forEach(data => {
             const gst = 0; // Warehouse sales don't have GST
             const cost = grandTotals.totalCost || 0;
             const netSale = grossSale; // Net Sale = Gross Sale (no discounts/returns/GST)
+            const profit = grandTotals.totalProfit || 0;
             
             grandTotalSection.innerHTML = `
                     <div class="card border-0 shadow-lg" style="border: 2px solid #ffc107 !important;">
@@ -20429,49 +20432,42 @@ sortedBranches.forEach(data => {
                                 </div>
                             </div>
                         </div>
-                        <div class="card-body" style="background-color: #fff9e6; padding: 0.75rem 1rem;">
-                            <div class="row mb-3">
-                                <div class="col-md-2 col-lg-2">
-                                    <div class="stat-box">
-                                        <div class="stat-label fw-bold">Gross Sale</div>
-                                        <div class="stat-value fw-bold" style="font-size: 1.2em;">${grossSale.toLocaleString()}</div>
+                        <div class="card-body" style="background-color: #fff9e6; padding: 1.5rem;">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="text-center p-3" style="background-color: #ffffff; border-radius: 8px; border: 2px solid #28a745;">
+                                        <div class="stat-label fw-bold mb-2" style="font-size: 1.1em; color: #495057;">TOTAL SALES</div>
+                                        <div class="stat-value fw-bold text-success" style="font-size: 2em;">${grossSale.toLocaleString()}</div>
                                     </div>
                                 </div>
-                                <div class="col-md-2 col-lg-2">
-                                    <div class="stat-box">
-                                        <div class="stat-label fw-bold">Discount</div>
-                                        <div class="stat-value fw-bold" style="font-size: 1.2em;">${discount.toLocaleString()}</div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="text-center p-3" style="background-color: #ffffff; border-radius: 8px; border: 2px solid #dc3545;">
+                                        <div class="stat-label fw-bold mb-2" style="font-size: 1.1em; color: #495057;">TOTAL COST</div>
+                                        <div class="stat-value fw-bold text-danger" style="font-size: 2em;">${cost.toLocaleString()}</div>
                                     </div>
                                 </div>
-                                <div class="col-md-2 col-lg-2">
-                                    <div class="stat-box">
-                                        <div class="stat-label fw-bold">Return</div>
-                                        <div class="stat-value fw-bold" style="font-size: 1.2em;">${returnAmount.toLocaleString()}</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-2 col-lg-2">
-                                    <div class="stat-box">
-                                        <div class="stat-label fw-bold">GST</div>
-                                        <div class="stat-value fw-bold" style="font-size: 1.2em;">${gst.toLocaleString()}</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-2 col-lg-2">
-                                    <div class="stat-box">
-                                        <div class="stat-label fw-bold">Cost</div>
-                                        <div class="stat-value fw-bold" style="font-size: 1.2em;">${cost.toLocaleString()}</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-2 col-lg-2">
-                                    <div class="stat-box">
-                                        <div class="stat-label fw-bold">Net Sale</div>
-                                        <div class="stat-value fw-bold text-success" style="font-size: 1.3em;"><strong>${netSale.toLocaleString()}</strong></div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-12">
+                                    <div class="text-center p-3" style="background-color: #ffffff; border-radius: 8px; border: 2px solid #17a2b8;">
+                                        <div class="stat-label fw-bold mb-2" style="font-size: 1.1em; color: #495057;">TOTAL PROFIT</div>
+                                        <div class="stat-value fw-bold ${profit >= 0 ? 'text-success' : 'text-danger'}" style="font-size: 2.2em;"><strong>${profit.toLocaleString()}</strong></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 `;
+            
+            // Force display
+            grandTotalSection.style.display = 'block';
+            grandTotalSection.style.visibility = 'visible';
+            grandTotalSection.style.opacity = '1';
         }
+        
+        // Expose functions to window for global access
+        window.loadSalesList = loadSalesList;
+        window.renderWarehouseGrandTotal = renderWarehouseGrandTotal;
         
         // Update pagination
         function updatePagination(totalItems, currentPage, perPage, paginationId, callback, ...args) {
@@ -23191,12 +23187,12 @@ sortedBranches.forEach(data => {
                         </td>
                         <td>
                             <input type="number" class="form-control text-end bulk-gross-sale-tab2" 
-                                   data-subdept="${subDept._id}" min="0" step="0.01" 
+                                   data-subdept="${subDept._id}" step="0.01" 
                                    placeholder="0.00" value="0">
                         </td>
                         <td>
                             <input type="number" class="form-control text-end bulk-discount-tab2" 
-                                   data-subdept="${subDept._id}" min="0" step="0.01" 
+                                   data-subdept="${subDept._id}" step="0.01" 
                                    placeholder="0.00" value="0">
                         </td>
                         <td>
@@ -23211,12 +23207,12 @@ sortedBranches.forEach(data => {
                         </td>
                         <td>
                             <input type="number" class="form-control text-end bulk-return-tab2" 
-                                   data-subdept="${subDept._id}" min="0" step="0.01" 
+                                   data-subdept="${subDept._id}" step="0.01" 
                                    placeholder="0.00" value="0">
                         </td>
                         <td>
                             <input type="number" class="form-control text-end bulk-gst-tab2" 
-                                   data-subdept="${subDept._id}" min="0" step="0.01" 
+                                   data-subdept="${subDept._id}" step="0.01" 
                                    placeholder="0.00" value="0">
                         </td>
                         <td>
@@ -23226,7 +23222,7 @@ sortedBranches.forEach(data => {
                         </td>
                         <td>
                             <input type="number" class="form-control text-end bulk-cost-tab2" 
-                                   data-subdept="${subDept._id}" min="0" step="0.01" 
+                                   data-subdept="${subDept._id}" step="0.01" 
                                    placeholder="0.00" value="">
                         </td>
                     `;
@@ -23284,8 +23280,9 @@ sortedBranches.forEach(data => {
             const gst = parseFloat(document.querySelector(`.bulk-gst-tab2[data-subdept="${subDeptId}"]`)?.value) || 0;
             
             // Calculate Discount %: (Discount Amount / Gross Sale) * 100
+            // Allow calculation for both positive and negative grossSale values
             let discountPercent = 0;
-            if (grossSale > 0) {
+            if (grossSale !== 0 && !isNaN(grossSale)) {
                 discountPercent = (discountAmount / grossSale) * 100;
             }
             const discountPercentInput = document.querySelector(`.bulk-discount-percent-tab2[data-subdept="${subDeptId}"]`);
@@ -23462,8 +23459,8 @@ sortedBranches.forEach(data => {
                 const saleValue = parseFloat(row.querySelector('.bulk-sale-value-tab2')?.value) || 0;
                 const netSale = parseFloat(row.querySelector('.bulk-net-sale-tab2')?.value) || 0;
                 
-                // Only include entries with gross sale > 0
-                if (grossSale > 0 && subDeptId) {
+                // Include entries with gross sale != 0 (allows negative values for returns/adjustments)
+                if (grossSale !== 0 && grossSale !== null && grossSale !== undefined && !isNaN(grossSale) && subDeptId) {
                     hasValidData = true;
                     
                     salesData.push({
@@ -23486,7 +23483,7 @@ sortedBranches.forEach(data => {
             });
             
             if (!hasValidData) {
-                showNotification('Please enter at least one sub-department with Gross Sale greater than 0', 'error');
+                showNotification('Please enter at least one sub-department with Gross Sale (positive or negative values allowed)', 'error');
                 // Re-enable button on validation error
                 isSavingBulkDeptSalesTab2 = false;
                 if (saveBtn) {

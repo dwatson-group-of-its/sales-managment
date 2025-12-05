@@ -2849,8 +2849,8 @@ app.post('/api/department-sales', authenticate, checkDatabaseConnection, async (
       return res.status(400).json({ error: 'Missing required fields: branchId, departmentId, subDepartmentId, and date are required.' });
     }
 
-    if (!data.grossSale || data.grossSale <= 0) {
-      return res.status(400).json({ error: 'Gross Sale must be greater than 0.' });
+    if (data.grossSale === undefined || data.grossSale === null) {
+      return res.status(400).json({ error: 'Gross Sale is required.' });
     }
 
     // Create department sale

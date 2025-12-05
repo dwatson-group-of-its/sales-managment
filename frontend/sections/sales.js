@@ -1426,14 +1426,14 @@
       subDepts.forEach(function(sd){
         const row = document.createElement('tr');
         row.innerHTML = '<td><strong>' + sd.name + '</strong><input type="hidden" class="bulk-subdept-id-tab2" value="' + sd._id + '"></td>' +
-          '<td><input type="number" class="form-control text-end bulk-gross-sale-tab2" data-subdept="' + sd._id + '" min="0" step="0.01" placeholder="0.00" value="0"></td>' +
-          '<td><input type="number" class="form-control text-end bulk-discount-tab2" data-subdept="' + sd._id + '" min="0" step="0.01" placeholder="0.00" value="0"></td>' +
+          '<td><input type="number" class="form-control text-end bulk-gross-sale-tab2" data-subdept="' + sd._id + '" step="0.01" placeholder="0.00" value="0"></td>' +
+          '<td><input type="number" class="form-control text-end bulk-discount-tab2" data-subdept="' + sd._id + '" step="0.01" placeholder="0.00" value="0"></td>' +
           '<td><input type="number" class="form-control text-end bulk-discount-percent-tab2" data-subdept="' + sd._id + '" readonly placeholder="0.00%" style="background-color:#e7f3ff;" value="0"></td>' +
           '<td><input type="number" class="form-control text-end bulk-sale-value-tab2" data-subdept="' + sd._id + '" readonly placeholder="0.00" style="background-color:#e7f3ff;"></td>' +
-          '<td><input type="number" class="form-control text-end bulk-return-tab2" data-subdept="' + sd._id + '" min="0" step="0.01" placeholder="0.00" value="0"></td>' +
-          '<td><input type="number" class="form-control text-end bulk-gst-tab2" data-subdept="' + sd._id + '" min="0" step="0.01" placeholder="0.00" value="0"></td>' +
+          '<td><input type="number" class="form-control text-end bulk-return-tab2" data-subdept="' + sd._id + '" step="0.01" placeholder="0.00" value="0"></td>' +
+          '<td><input type="number" class="form-control text-end bulk-gst-tab2" data-subdept="' + sd._id + '" step="0.01" placeholder="0.00" value="0"></td>' +
           '<td><input type="number" class="form-control text-end bulk-net-sale-tab2" data-subdept="' + sd._id + '" readonly placeholder="0.00" style="background-color:#e7f3ff;"></td>' +
-          '<td><input type="number" class="form-control text-end bulk-cost-tab2" data-subdept="' + sd._id + '" min="0" step="0.01" placeholder="0.00" value=""></td>';
+          '<td><input type="number" class="form-control text-end bulk-cost-tab2" data-subdept="' + sd._id + '" step="0.01" placeholder="0.00" value=""></td>';
         tbody.appendChild(row);
         const gross = row.querySelector('.bulk-gross-sale-tab2');
         const disc = row.querySelector('.bulk-discount-tab2');
@@ -1478,9 +1478,9 @@
       inputGroup.innerHTML = '<label>' + category.name + '</label>' +
         '<div class="row">' +
         '<div class="col-md-6 mb-2"><div class="input-group"><span class="input-group-text">Sales</span>' +
-        '<input type="number" class="form-control category-sales" data-category="' + category._id + '" min="0" step="0.01" placeholder="0.00"></div></div>' +
+        '<input type="number" class="form-control category-sales" data-category="' + category._id + '" step="0.01" placeholder="0.00"></div></div>' +
         '<div class="col-md-6 mb-2"><div class="input-group"><span class="input-group-text">Cost</span>' +
-        '<input type="number" class="form-control category-cost" data-category="' + category._id + '" min="0" step="0.01" placeholder="0.00"></div></div>' +
+        '<input type="number" class="form-control category-cost" data-category="' + category._id + '" step="0.01" placeholder="0.00"></div></div>' +
         '</div>';
       container.appendChild(inputGroup);
     });
@@ -1566,7 +1566,7 @@
       const sales = parseFloat(input.value) || 0;
       const costInput = document.querySelector('.category-cost[data-category="' + categoryId + '"]');
       const cost = parseFloat(costInput && costInput.value) || 0;
-      if (sales > 0) {
+      if (sales !== 0 && sales !== null && sales !== undefined && !isNaN(sales)) {
         const saleData = { date: date, branchId: branchId, categoryId: categoryId, total: sales, costTotal: cost, profit: sales - cost, notes: notes };
         if (window.api && typeof window.api.createSale === 'function') {
           salesPromises.push(window.api.createSale(saleData));
@@ -1574,7 +1574,7 @@
       }
     });
     if (salesPromises.length === 0) {
-      if (typeof showNotification === 'function') showNotification('Enter at least one category sale amount', 'warning');
+      if (typeof showNotification === 'function') showNotification('Enter at least one category sale amount (positive or negative values allowed)', 'warning');
       if (actionBtn) { try { actionBtn.disabled = false; actionBtn.innerHTML = actionBtn.dataset.originalText || 'Save'; } catch(e) {} }
       Array.prototype.forEach.call(document.querySelectorAll('#salesEntryForm input, #salesEntryForm select, #salesEntryForm button'), function(el){ try { el.disabled = false; } catch(e) {} });
       window.__savingSales = false;
