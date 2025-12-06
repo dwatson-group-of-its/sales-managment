@@ -8892,9 +8892,17 @@
                         </div>
                     </div>
                     
-                    <!-- Net Sale Summary Card -->
+                    <!-- Total Cost and Net Sale Summary Cards -->
                     <div class="row mb-4">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
+                            <div class="card text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #6f42c1 0%, #9c27b0 100%);">
+                                <div class="card-body">
+                                    <h6 class="text-white mb-2">Total Cost</h6>
+                                    <h2 class="text-white mb-0" id="deptWiseSummaryTotalCost">0</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="card text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #4D4D4D 0%, #6c757d 100%);">
                                 <div class="card-body">
                                     <h6 class="text-white mb-2">Net Sale</h6>
@@ -8912,9 +8920,15 @@
                                     <h5 class="card-title mb-0">Department-Wise Report</h5>
                                     <div id="deptWiseReportSubtitle" class="text-muted small mt-1" style="display: none;"></div>
                                 </div>
-                                <button class="btn btn-success no-print" id="printDeptWiseReportBtn">
-                                    <i class="fas fa-print me-2"></i>Print Report
-                                </button>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <select class="form-select no-print" id="deptWiseReportOrientation" style="width: auto;">
+                                        <option value="portrait">Portrait</option>
+                                        <option value="landscape">Landscape</option>
+                                    </select>
+                                    <button class="btn btn-success no-print" id="printDeptWiseReportBtn">
+                                        <i class="fas fa-print me-2"></i>Print Report
+                                    </button>
+                                </div>
                             </div>
                             <h4 id="deptWiseReportBranchName" class="text-center mt-2 mb-3" style="display: none; font-weight: 600; background-color: #2c6e8a; color: white; padding: 15px; border-radius: 5px;"></h4>
                             
@@ -9050,9 +9064,15 @@
                                     <h5 class="card-title mb-0">Sub-Department-Wise Report</h5>
                                     <div id="subDeptWiseReportSubtitle" class="text-muted small mt-1" style="display: none;"></div>
                                 </div>
-                                <button class="btn btn-success no-print" id="printSubDeptWiseReportBtn">
-                                    <i class="fas fa-print me-2"></i>Print Report
-                                </button>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <select class="form-select no-print" id="subDeptWiseReportOrientation" style="width: auto;">
+                                        <option value="portrait">Portrait</option>
+                                        <option value="landscape">Landscape</option>
+                                    </select>
+                                    <button class="btn btn-success no-print" id="printSubDeptWiseReportBtn">
+                                        <i class="fas fa-print me-2"></i>Print Report
+                                    </button>
+                                </div>
                             </div>
                             <h4 id="subDeptWiseReportBranchName" class="text-center mt-2 mb-3" style="display: none; font-weight: 600;"></h4>
                             
@@ -9135,9 +9155,15 @@
                                     <h5 class="card-title mb-0">Department-Wise Sale Comparison</h5>
                                     <div id="deptComparisonReportSubtitle" class="text-muted small mt-1" style="display: none;"></div>
                                 </div>
-                                <button class="btn btn-success no-print" id="printDeptComparisonReportBtn">
-                                    <i class="fas fa-print me-2"></i>Print Report
-                                </button>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <select class="form-select no-print" id="deptComparisonReportOrientation" style="width: auto;">
+                                        <option value="portrait">Portrait</option>
+                                        <option value="landscape">Landscape</option>
+                                    </select>
+                                    <button class="btn btn-success no-print" id="printDeptComparisonReportBtn">
+                                        <i class="fas fa-print me-2"></i>Print Report
+                                    </button>
+                                </div>
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-hover">
@@ -9218,9 +9244,15 @@
                                     <h5 class="card-title mb-0">Branch-Wise Sale Comparison</h5>
                                     <div id="branchComparisonReportSubtitle" class="text-muted small mt-1" style="display: none;"></div>
                                 </div>
-                                <button class="btn btn-success no-print" id="printBranchComparisonReportBtn">
-                                    <i class="fas fa-print me-2"></i>Print Report
-                                </button>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <select class="form-select no-print" id="branchComparisonReportOrientation" style="width: auto;">
+                                        <option value="portrait">Portrait</option>
+                                        <option value="landscape">Landscape</option>
+                                    </select>
+                                    <button class="btn btn-success no-print" id="printBranchComparisonReportBtn">
+                                        <i class="fas fa-print me-2"></i>Print Report
+                                    </button>
+                                </div>
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-hover">
@@ -31429,6 +31461,7 @@ sortedBranches.forEach(data => {
                 document.getElementById('deptWiseSummaryTotalDiscount').textContent = grandTotalDiscount.toLocaleString();
                 document.getElementById('deptWiseSummaryTotalReturn').textContent = grandTotalReturn.toLocaleString();
                 document.getElementById('deptWiseSummaryTotalGST').textContent = grandTotalGST.toLocaleString();
+                document.getElementById('deptWiseSummaryTotalCost').textContent = grandTotalCost.toLocaleString();
                 document.getElementById('deptWiseSummaryNetSale').textContent = grandTotalNetSale.toLocaleString();
             }).catch(error => {
                 console.error('Error generating department-wise report:', error);
@@ -32811,6 +32844,7 @@ sortedBranches.forEach(data => {
             const dateTo = document.getElementById('deptWiseReportDateTo').value;
             const branchId = document.getElementById('deptWiseReportBranch').value;
             const departmentId = document.getElementById('deptWiseReportDepartment').value;
+            const orientation = document.getElementById('deptWiseReportOrientation')?.value || 'portrait';
             
             const branch = branchId ? appData.branches.find(b => b._id === branchId) : null;
             const branchName = branch ? branch.name : 'All Branches';
@@ -32830,6 +32864,7 @@ sortedBranches.forEach(data => {
             const summaryDiscount = document.getElementById('deptWiseSummaryTotalDiscount')?.textContent || '0';
             const summaryReturn = document.getElementById('deptWiseSummaryTotalReturn')?.textContent || '0';
             const summaryGST = document.getElementById('deptWiseSummaryTotalGST')?.textContent || '0';
+            const summaryCost = document.getElementById('deptWiseSummaryTotalCost')?.textContent || '0';
             const summaryNetSale = document.getElementById('deptWiseSummaryNetSale')?.textContent || '0';
             
             const currentDate = new Date().toLocaleDateString('en-GB');
@@ -32841,6 +32876,9 @@ sortedBranches.forEach(data => {
             const tableBody = document.getElementById('deptWiseReportTableBody');
             const tableRows = tableBody ? tableBody.innerHTML : '<tr><td colspan="10" class="text-center">No data available</td></tr>';
             
+            const pageSize = orientation === 'landscape' ? 'A4 landscape' : 'A4';
+            const pageMargin = orientation === 'landscape' ? '0.4in' : '0.5in';
+            
             const printContent = `
 <!DOCTYPE html>
 <html>
@@ -32851,47 +32889,63 @@ sortedBranches.forEach(data => {
         * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            box-sizing: border-box;
         }
         
         @page {
-            size: A4 landscape;
-            margin: 0.5in;
+            size: ${pageSize};
+            margin: ${pageMargin};
         }
         
         body {
             font-family: 'Arial', sans-serif;
-            font-size: 11pt;
-            line-height: 1.5;
+            font-size: ${orientation === 'landscape' ? '10pt' : '9pt'};
+            line-height: 1.4;
             color: #000;
             background: #fff;
-            margin: 0;
-            padding: 20px;
+            margin: 0 auto;
+            padding: 0;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        .print-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
         }
         
         .print-header {
             text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #2c6e8a;
-            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #2c6e8a;
+            padding-bottom: 10px;
+            page-break-after: avoid;
         }
         
         .print-header h1 {
-            font-size: 28pt;
+            font-size: ${orientation === 'landscape' ? '20pt' : '18pt'};
             font-weight: bold;
-            margin: 0 0 10px 0;
+            margin: 0 0 6px 0;
             color: #2c6e8a;
         }
         
+        .print-header h2 {
+            font-size: ${orientation === 'landscape' ? '16pt' : '14pt'};
+            margin: 8px 0;
+        }
+        
         .print-header .company-info {
-            font-size: 11pt;
+            font-size: ${orientation === 'landscape' ? '10pt' : '9pt'};
             color: #555;
-            margin: 5px 0;
+            margin: 4px 0;
         }
         
         .print-header .report-info {
-            font-size: 10pt;
+            font-size: ${orientation === 'landscape' ? '9pt' : '8pt'};
             color: #555;
-            margin: 10px 0 0 0;
+            margin: 6px 0 0 0;
             text-align: left;
             display: inline-block;
         }
@@ -32899,72 +32953,84 @@ sortedBranches.forEach(data => {
         .summary-cards {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: ${orientation === 'landscape' ? '8px' : '6px'};
+            margin-bottom: 12px;
+            page-break-inside: avoid;
         }
         
         .summary-card {
             background: linear-gradient(135deg, #2c6e8a 0%, #4fb3d9 100%);
             color: white;
-            padding: 20px;
-            border-radius: 8px;
+            padding: ${orientation === 'landscape' ? '12px' : '10px'};
+            border-radius: 4px;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         
         .summary-card h4 {
-            margin: 0 0 10px 0;
-            font-size: 12pt;
+            margin: 0 0 4px 0;
+            font-size: ${orientation === 'landscape' ? '9pt' : '8pt'};
             font-weight: 600;
         }
         
         .summary-card .value {
-            font-size: 20pt;
+            font-size: ${orientation === 'landscape' ? '14pt' : '12pt'};
             font-weight: bold;
         }
         
         .net-sale-card {
             background: linear-gradient(135deg, #4D4D4D 0%, #6c757d 100%);
             color: white;
-            padding: 25px;
-            border-radius: 8px;
+            padding: ${orientation === 'landscape' ? '15px' : '12px'};
+            border-radius: 4px;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 12px;
+            page-break-inside: avoid;
+        }
+        
+        .net-sale-card[style*="purple"] {
+            background: linear-gradient(135deg, #6f42c1 0%, #9c27b0 100%) !important;
         }
         
         .net-sale-card h4 {
-            margin: 0 0 15px 0;
-            font-size: 14pt;
+            margin: 0 0 6px 0;
+            font-size: ${orientation === 'landscape' ? '10pt' : '9pt'};
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
         
         .net-sale-card .value {
-            font-size: 32pt;
+            font-size: ${orientation === 'landscape' ? '18pt' : '16pt'};
             font-weight: bold;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
-            font-size: 10pt;
+            margin: 0 auto 12px auto;
+            font-size: ${orientation === 'landscape' ? '8pt' : '7pt'};
+            table-layout: fixed;
+            word-wrap: break-word;
         }
         
         th {
             background-color: #2c6e8a;
             color: white;
-            padding: 12px;
+            padding: ${orientation === 'landscape' ? '6px 4px' : '5px 3px'};
             text-align: left;
             border: 1px solid #1a4d63;
             font-weight: bold;
+            font-size: ${orientation === 'landscape' ? '8pt' : '7pt'};
         }
         
         td {
-            padding: 10px;
+            padding: ${orientation === 'landscape' ? '6px 4px' : '5px 3px'};
             border: 1px solid #ddd;
+            font-size: ${orientation === 'landscape' ? '8pt' : '7pt'};
+            word-wrap: break-word;
+            overflow: hidden;
         }
         
         tr:nth-child(even) {
@@ -32976,41 +33042,44 @@ sortedBranches.forEach(data => {
             background-color: #00685c !important;
             color: white !important;
             text-align: center;
-            padding: 15px;
+            padding: ${orientation === 'landscape' ? '8px' : '6px'};
             font-weight: 700;
-            font-size: 1.8rem;
-            border-bottom: 5px solid white !important;
+            font-size: ${orientation === 'landscape' ? '14pt' : '12pt'};
+            border-bottom: 2px solid white !important;
         }
         
         .branch-header-row th {
             background-color: #000000 !important;
             color: white !important;
-            border-right: 2px solid white !important;
+            border-right: 1px solid white !important;
             border-left: 1px solid #333 !important;
             border-top: 1px solid #333 !important;
             border-bottom: 1px solid #333 !important;
             font-weight: 700;
-            padding: 12px;
+            padding: ${orientation === 'landscape' ? '6px 4px' : '5px 3px'};
+            font-size: ${orientation === 'landscape' ? '8pt' : '7pt'};
         }
         
         .department-total-row td {
             background-color: #e9ecef !important;
             font-weight: 700;
-            padding: 12px 15px;
+            padding: ${orientation === 'landscape' ? '7px 4px' : '6px 3px'};
+            font-size: ${orientation === 'landscape' ? '8pt' : '7pt'};
         }
         
         .branch-total-row td {
             background-color: #f8f9fa !important;
             font-weight: 700;
-            padding: 12px 15px;
+            padding: ${orientation === 'landscape' ? '7px 4px' : '6px 3px'};
+            font-size: ${orientation === 'landscape' ? '8pt' : '7pt'};
         }
         
         .grand-total-row td {
             background-color: #2c6e8a !important;
             color: white !important;
             font-weight: 700;
-            padding: 15px;
-            font-size: 1.1rem;
+            padding: ${orientation === 'landscape' ? '10px 4px' : '8px 3px'};
+            font-size: ${orientation === 'landscape' ? '9pt' : '8pt'};
         }
         
         .text-right {
@@ -33022,35 +33091,63 @@ sortedBranches.forEach(data => {
         }
         
         .print-footer {
-            margin-top: 30px;
+            margin-top: 15px;
             text-align: center;
-            font-size: 9pt;
+            font-size: ${orientation === 'landscape' ? '8pt' : '7pt'};
             color: #666;
             border-top: 1px solid #ccc;
-            padding-top: 15px;
+            padding-top: 8px;
+            page-break-inside: avoid;
         }
         
         @media print {
             body {
                 padding: 0;
+                margin: 0 auto;
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .print-container {
+                width: 100%;
+                max-width: 100%;
+                margin: 0 auto;
             }
             
             .summary-cards {
                 page-break-inside: avoid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: ${orientation === 'landscape' ? '6px' : '4px'};
             }
             
             table {
                 page-break-inside: auto;
+                width: 100%;
+                max-width: 100%;
+                font-size: ${orientation === 'landscape' ? '7.5pt' : '6.5pt'};
+                margin: 0 auto;
+            }
+            
+            th, td {
+                padding: ${orientation === 'landscape' ? '5px 3px' : '4px 2px'};
+                font-size: ${orientation === 'landscape' ? '7.5pt' : '6.5pt'};
             }
             
             tr {
                 page-break-inside: avoid;
                 page-break-after: auto;
             }
+            
+            .branch-name-row,
+            .branch-header-row,
+            .grand-total-row {
+                page-break-inside: avoid;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="print-container">
     <div class="print-header">
         <h1>D.Watson Group Of Pharmacies</h1>
         <div class="company-info">Department-Wise Report</div>
@@ -33082,25 +33179,31 @@ sortedBranches.forEach(data => {
         </div>
     </div>
     
-    <div class="net-sale-card">
-        <h4>Net Sale</h4>
-        <div class="value">${summaryNetSale}</div>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px;">
+        <div class="net-sale-card" style="background: linear-gradient(135deg, #6f42c1 0%, #9c27b0 100%);">
+            <h4>Total Cost</h4>
+            <div class="value">${summaryCost}</div>
+        </div>
+        <div class="net-sale-card">
+            <h4>Net Sale</h4>
+            <div class="value">${summaryNetSale}</div>
+        </div>
     </div>
     
-    <div style="overflow-x: auto; width: 100%;">
-        <table style="min-width: 100%; width: max-content;">
+    <div style="overflow-x: auto; width: 100%; max-width: 100%;">
+        <table style="width: 100%; table-layout: fixed;">
             <thead>
                 <tr>
-                    <th style="min-width: 120px;">Department</th>
-                    <th class="text-right" style="min-width: 100px;">Gross Sale</th>
-                    <th class="text-right" style="min-width: 90px;">Discount Value</th>
-                    <th class="text-right" style="min-width: 80px;">Discount %</th>
-                    <th class="text-right" style="min-width: 90px;">Return</th>
-                    <th class="text-right" style="min-width: 100px;">Sale Value</th>
-                    <th class="text-right" style="min-width: 90px;">GST</th>
-                    <th class="text-right" style="min-width: 90px;">Cost</th>
-                    <th class="text-right" style="min-width: 100px;">Net Sale</th>
-                    <th class="text-right" style="min-width: 100px;">Daily Average</th>
+                    <th style="width: auto;">Department</th>
+                    <th class="text-right" style="width: auto;">Gross Sale</th>
+                    <th class="text-right" style="width: auto;">Discount Value</th>
+                    <th class="text-right" style="width: auto;">Discount %</th>
+                    <th class="text-right" style="width: auto;">Return</th>
+                    <th class="text-right" style="width: auto;">Sale Value</th>
+                    <th class="text-right" style="width: auto;">GST</th>
+                    <th class="text-right" style="width: auto;">Cost</th>
+                    <th class="text-right" style="width: auto;">Net Sale</th>
+                    <th class="text-right" style="width: auto;">Daily Average</th>
                 </tr>
             </thead>
             <tbody>
@@ -33111,6 +33214,7 @@ sortedBranches.forEach(data => {
     
     <div class="print-footer">
         <p>Generated on ${currentDate} | D.Watson Group Of Pharmacies</p>
+    </div>
     </div>
 </body>
 </html>`;
@@ -33141,6 +33245,7 @@ sortedBranches.forEach(data => {
             const branchId = document.getElementById('subDeptWiseReportBranch').value;
             const departmentId = document.getElementById('subDeptWiseReportDepartment').value;
             const subDepartmentId = document.getElementById('subDeptWiseReportSubDepartment').value;
+            const orientation = document.getElementById('subDeptWiseReportOrientation')?.value || 'portrait';
             
             const branch = branchId ? appData.branches.find(b => b._id === branchId) : null;
             const branchName = branch ? branch.name : 'All Branches';
@@ -33174,6 +33279,9 @@ sortedBranches.forEach(data => {
             const tableBody = document.getElementById('subDeptWiseReportTableBody');
             const tableRows = tableBody ? tableBody.innerHTML : '<tr><td colspan="10" class="text-center">No data available</td></tr>';
             
+            const pageSize = orientation === 'landscape' ? 'A4 landscape' : 'A4';
+            const pageMargin = orientation === 'landscape' ? '0.4in' : '0.5in';
+            
             const printContent = `
 <!DOCTYPE html>
 <html>
@@ -33184,47 +33292,63 @@ sortedBranches.forEach(data => {
         * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            box-sizing: border-box;
         }
         
         @page {
-            size: A4;
-            margin: 1in;
+            size: ${pageSize};
+            margin: ${pageMargin};
         }
         
         body {
             font-family: 'Arial', sans-serif;
-            font-size: 11pt;
-            line-height: 1.5;
+            font-size: ${orientation === 'landscape' ? '10pt' : '9pt'};
+            line-height: 1.4;
             color: #000;
             background: #fff;
-            margin: 0;
-            padding: 20px;
+            margin: 0 auto;
+            padding: 0;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        .print-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
         }
         
         .print-header {
             text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #2c6e8a;
-            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #2c6e8a;
+            padding-bottom: 10px;
+            page-break-after: avoid;
         }
         
         .print-header h1 {
-            font-size: 28pt;
+            font-size: 18pt;
             font-weight: bold;
-            margin: 0 0 10px 0;
+            margin: 0 0 6px 0;
             color: #2c6e8a;
         }
         
+        .print-header h2 {
+            font-size: 14pt;
+            margin: 8px 0;
+        }
+        
         .print-header .company-info {
-            font-size: 11pt;
+            font-size: 9pt;
             color: #555;
-            margin: 5px 0;
+            margin: 4px 0;
         }
         
         .print-header .report-info {
-            font-size: 10pt;
+            font-size: 8pt;
             color: #555;
-            margin: 10px 0 0 0;
+            margin: 6px 0 0 0;
             text-align: left;
             display: inline-block;
         }
@@ -33232,72 +33356,80 @@ sortedBranches.forEach(data => {
         .summary-cards {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 6px;
+            margin-bottom: 12px;
+            page-break-inside: avoid;
         }
         
         .summary-card {
             background: linear-gradient(135deg, #2c6e8a 0%, #4fb3d9 100%);
             color: white;
-            padding: 20px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 4px;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         
         .summary-card h4 {
-            margin: 0 0 10px 0;
-            font-size: 12pt;
+            margin: 0 0 4px 0;
+            font-size: 8pt;
             font-weight: 600;
         }
         
         .summary-card .value {
-            font-size: 20pt;
+            font-size: 12pt;
             font-weight: bold;
         }
         
         .net-sale-card {
             background: linear-gradient(135deg, #4D4D4D 0%, #6c757d 100%);
             color: white;
-            padding: 25px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 4px;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 12px;
+            page-break-inside: avoid;
         }
         
         .net-sale-card h4 {
-            margin: 0 0 15px 0;
-            font-size: 14pt;
+            margin: 0 0 6px 0;
+            font-size: 9pt;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
         
         .net-sale-card .value {
-            font-size: 32pt;
+            font-size: 16pt;
             font-weight: bold;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
-            font-size: 10pt;
+            margin-bottom: 12px;
+            font-size: 7pt;
+            table-layout: fixed;
+            word-wrap: break-word;
         }
         
         th {
             background-color: #2c6e8a;
             color: white;
-            padding: 12px;
+            padding: 5px 3px;
             text-align: left;
             border: 1px solid #1a4d63;
             font-weight: bold;
+            font-size: 7pt;
         }
         
         td {
-            padding: 10px;
+            padding: 5px 3px;
             border: 1px solid #ddd;
+            font-size: 7pt;
+            word-wrap: break-word;
+            overflow: hidden;
         }
         
         tr:nth-child(even) {
@@ -33309,41 +33441,44 @@ sortedBranches.forEach(data => {
             background-color: #00685c !important;
             color: white !important;
             text-align: center;
-            padding: 15px;
+            padding: 6px;
             font-weight: 700;
-            font-size: 1.8rem;
-            border-bottom: 5px solid white !important;
+            font-size: 12pt;
+            border-bottom: 2px solid white !important;
         }
         
         .branch-header-row th {
             background-color: #000000 !important;
             color: white !important;
-            border-right: 2px solid white !important;
+            border-right: 1px solid white !important;
             border-left: 1px solid #333 !important;
             border-top: 1px solid #333 !important;
             border-bottom: 1px solid #333 !important;
             font-weight: 700;
-            padding: 12px;
+            padding: 5px 3px;
+            font-size: 7pt;
         }
         
         .department-total-row td {
             background-color: #e9ecef !important;
             font-weight: 700;
-            padding: 12px 15px;
+            padding: 6px 3px;
+            font-size: 7pt;
         }
         
         .branch-total-row td {
             background-color: #f8f9fa !important;
             font-weight: 700;
-            padding: 12px 15px;
+            padding: 6px 3px;
+            font-size: 7pt;
         }
         
         .grand-total-row td {
             background-color: #2c6e8a !important;
             color: white !important;
             font-weight: 700;
-            padding: 15px;
-            font-size: 1.1rem;
+            padding: 8px 3px;
+            font-size: 8pt;
         }
         
         .text-right {
@@ -33355,39 +33490,59 @@ sortedBranches.forEach(data => {
         }
         
         .print-footer {
-            margin-top: 30px;
+            margin-top: 15px;
             text-align: center;
-            font-size: 9pt;
+            font-size: 7pt;
             color: #666;
             border-top: 1px solid #ccc;
-            padding-top: 15px;
+            padding-top: 8px;
+            page-break-inside: avoid;
         }
         
         @media print {
             body {
                 padding: 0;
+                margin: 0;
+                width: 100%;
+                max-width: 100%;
             }
             
             .summary-cards {
                 page-break-inside: avoid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 4px;
             }
             
             table {
                 page-break-inside: auto;
+                width: 100%;
+                font-size: 6.5pt;
+            }
+            
+            th, td {
+                padding: 4px 2px;
+                font-size: 6.5pt;
             }
             
             tr {
                 page-break-inside: avoid;
                 page-break-after: auto;
             }
+            
+            .branch-name-row,
+            .branch-header-row,
+            .grand-total-row {
+                page-break-inside: avoid;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="print-container">
     <div class="print-header">
         <h1>D.Watson Group Of Pharmacies</h1>
         <div class="company-info">Sub-Department-Wise Report</div>
-        ${displayedBranchName ? `<h2 style="text-align: center; margin: 15px 0; font-size: 20pt; font-weight: 600;">${displayedBranchName}</h2>` : ''}
+        ${displayedBranchName ? `<h2 style="text-align: center; margin: 15px 0; font-size: ${orientation === 'landscape' ? '18pt' : '16pt'}; font-weight: 600;">${displayedBranchName}</h2>` : ''}
         <div class="report-info">
             ${branchAddress ? `<strong>Address:</strong> ${branchAddress}<br>` : ''}
             <strong>Department:</strong> ${deptName}<br>
@@ -33421,28 +33576,31 @@ sortedBranches.forEach(data => {
         <div class="value">${summaryNetSale}</div>
     </div>
     
-    <table>
-        <thead>
-            <tr>
-                <th>Sub-Department</th>
-                <th>Department</th>
-                <th>Branch</th>
-                <th class="text-right">Gross Sale</th>
-                <th class="text-right">Discount</th>
-                <th class="text-right">Return</th>
-                <th class="text-right">Sale Value</th>
-                <th class="text-right">GST</th>
-                <th class="text-right">Net Sale</th>
-                <th class="text-right">Daily Sale Average</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${tableRows}
-        </tbody>
-    </table>
+    <div style="overflow-x: auto; width: 100%; max-width: 100%;">
+        <table style="width: 100%; table-layout: fixed;">
+            <thead>
+                <tr>
+                    <th style="width: auto;">Sub-Department</th>
+                    <th style="width: auto;">Department</th>
+                    <th style="width: auto;">Branch</th>
+                    <th class="text-right" style="width: auto;">Gross Sale</th>
+                    <th class="text-right" style="width: auto;">Discount</th>
+                    <th class="text-right" style="width: auto;">Return</th>
+                    <th class="text-right" style="width: auto;">Sale Value</th>
+                    <th class="text-right" style="width: auto;">GST</th>
+                    <th class="text-right" style="width: auto;">Net Sale</th>
+                    <th class="text-right" style="width: auto;">Daily Sale Average</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tableRows}
+            </tbody>
+        </table>
+    </div>
     
     <div class="print-footer">
         <p>Generated on ${currentDate} | D.Watson Group Of Pharmacies</p>
+    </div>
     </div>
 </body>
 </html>`;
@@ -33472,6 +33630,7 @@ sortedBranches.forEach(data => {
             const dateTo = document.getElementById('deptComparisonReportDateTo').value;
             const branchId = document.getElementById('deptComparisonReportBranch').value;
             const departmentId = document.getElementById('deptComparisonReportDepartment').value;
+            const orientation = document.getElementById('deptComparisonReportOrientation')?.value || 'portrait';
             
             const branch = branchId ? appData.branches.find(b => b._id === branchId) : null;
             const branchName = branch ? branch.name : 'All Branches';
@@ -33489,6 +33648,9 @@ sortedBranches.forEach(data => {
             const tableBody = document.getElementById('deptComparisonReportTableBody');
             const tableRows = tableBody ? tableBody.innerHTML : '<tr><td colspan="10" class="text-center">No data available</td></tr>';
             
+            const pageSize = orientation === 'landscape' ? 'A4 landscape' : 'A4';
+            const pageMargin = orientation === 'landscape' ? '0.4in' : '0.75in';
+            
             const printContent = `
 <!DOCTYPE html>
 <html>
@@ -33499,47 +33661,58 @@ sortedBranches.forEach(data => {
         * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            box-sizing: border-box;
         }
         
         @page {
-            size: A4;
-            margin: 1in;
+            size: ${pageSize};
+            margin: ${pageMargin};
         }
         
         body {
             font-family: 'Arial', sans-serif;
-            font-size: 11pt;
+            font-size: ${orientation === 'landscape' ? '10pt' : '11pt'};
             line-height: 1.5;
             color: #000;
             background: #fff;
-            margin: 0;
-            padding: 20px;
+            margin: 0 auto;
+            padding: 0;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        .print-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
         }
         
         .print-header {
             text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #2c6e8a;
-            padding-bottom: 15px;
+            margin-bottom: ${orientation === 'landscape' ? '20px' : '30px'};
+            border-bottom: 2px solid #2c6e8a;
+            padding-bottom: ${orientation === 'landscape' ? '10px' : '15px'};
+            page-break-after: avoid;
         }
         
         .print-header h1 {
-            font-size: 28pt;
+            font-size: ${orientation === 'landscape' ? '20pt' : '28pt'};
             font-weight: bold;
-            margin: 0 0 10px 0;
+            margin: 0 0 8px 0;
             color: #2c6e8a;
         }
         
         .print-header .company-info {
-            font-size: 11pt;
+            font-size: ${orientation === 'landscape' ? '10pt' : '11pt'};
             color: #555;
-            margin: 5px 0;
+            margin: 4px 0;
         }
         
         .print-header .report-info {
-            font-size: 10pt;
+            font-size: ${orientation === 'landscape' ? '9pt' : '10pt'};
             color: #555;
-            margin: 10px 0 0 0;
+            margin: 6px 0 0 0;
             text-align: left;
             display: inline-block;
         }
@@ -33547,22 +33720,27 @@ sortedBranches.forEach(data => {
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
-            font-size: 10pt;
+            margin: 0 auto ${orientation === 'landscape' ? '15px' : '20px'} auto;
+            font-size: ${orientation === 'landscape' ? '8pt' : '10pt'};
+            table-layout: fixed;
+            word-wrap: break-word;
         }
         
         th {
             background-color: #2c6e8a;
             color: white;
-            padding: 12px;
+            padding: ${orientation === 'landscape' ? '6px 4px' : '12px'};
             text-align: left;
             border: 1px solid #1a4d63;
             font-weight: bold;
+            font-size: ${orientation === 'landscape' ? '8pt' : '10pt'};
         }
         
         td {
-            padding: 10px;
+            padding: ${orientation === 'landscape' ? '6px 4px' : '10px'};
             border: 1px solid #ddd;
+            font-size: ${orientation === 'landscape' ? '8pt' : '10pt'};
+            word-wrap: break-word;
         }
         
         tr:nth-child(even) {
@@ -33574,41 +33752,44 @@ sortedBranches.forEach(data => {
             background-color: #00685c !important;
             color: white !important;
             text-align: center;
-            padding: 15px;
+            padding: ${orientation === 'landscape' ? '8px' : '15px'};
             font-weight: 700;
-            font-size: 1.8rem;
-            border-bottom: 5px solid white !important;
+            font-size: ${orientation === 'landscape' ? '14pt' : '1.8rem'};
+            border-bottom: ${orientation === 'landscape' ? '2px' : '5px'} solid white !important;
         }
         
         .branch-header-row th {
             background-color: #000000 !important;
             color: white !important;
-            border-right: 2px solid white !important;
+            border-right: ${orientation === 'landscape' ? '1px' : '2px'} solid white !important;
             border-left: 1px solid #333 !important;
             border-top: 1px solid #333 !important;
             border-bottom: 1px solid #333 !important;
             font-weight: 700;
-            padding: 12px;
+            padding: ${orientation === 'landscape' ? '6px 4px' : '12px'};
+            font-size: ${orientation === 'landscape' ? '8pt' : '10pt'};
         }
         
         .department-total-row td {
             background-color: #e9ecef !important;
             font-weight: 700;
-            padding: 12px 15px;
+            padding: ${orientation === 'landscape' ? '7px 4px' : '12px 15px'};
+            font-size: ${orientation === 'landscape' ? '8pt' : '10pt'};
         }
         
         .branch-total-row td {
             background-color: #f8f9fa !important;
             font-weight: 700;
-            padding: 12px 15px;
+            padding: ${orientation === 'landscape' ? '7px 4px' : '12px 15px'};
+            font-size: ${orientation === 'landscape' ? '8pt' : '10pt'};
         }
         
         .grand-total-row td {
             background-color: #2c6e8a !important;
             color: white !important;
             font-weight: 700;
-            padding: 15px;
-            font-size: 1.1rem;
+            padding: ${orientation === 'landscape' ? '10px 4px' : '15px'};
+            font-size: ${orientation === 'landscape' ? '9pt' : '1.1rem'};
         }
         
         .text-right {
@@ -33620,31 +33801,51 @@ sortedBranches.forEach(data => {
         }
         
         .print-footer {
-            margin-top: 30px;
+            margin-top: ${orientation === 'landscape' ? '15px' : '30px'};
             text-align: center;
-            font-size: 9pt;
+            font-size: ${orientation === 'landscape' ? '8pt' : '9pt'};
             color: #666;
             border-top: 1px solid #ccc;
-            padding-top: 15px;
+            padding-top: ${orientation === 'landscape' ? '8px' : '15px'};
+            page-break-inside: avoid;
         }
         
         @media print {
             body {
                 padding: 0;
+                margin: 0 auto;
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .print-container {
+                width: 100%;
+                max-width: 100%;
+                margin: 0 auto;
             }
             
             table {
                 page-break-inside: auto;
+                width: 100%;
+                max-width: 100%;
+                margin: 0 auto;
             }
             
             tr {
                 page-break-inside: avoid;
                 page-break-after: auto;
             }
+            
+            .branch-name-row,
+            .branch-header-row,
+            .grand-total-row {
+                page-break-inside: avoid;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="print-container">
     <div class="print-header">
         <h1>D.Watson Group Of Pharmacies</h1>
         <div class="company-info">Department-Wise Sale Comparison</div>
@@ -33657,28 +33858,31 @@ sortedBranches.forEach(data => {
         </div>
     </div>
     
-    <table>
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>Department</th>
-                <th>Branch</th>
-                <th class="text-right">Gross Sale</th>
-                <th class="text-right">Discount</th>
-                <th class="text-right">Return</th>
-                <th class="text-right">Sale Value</th>
-                <th class="text-right">GST</th>
-                <th class="text-right">Net Sale</th>
-                <th class="text-right">Profit Margin %</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${tableRows}
-        </tbody>
-    </table>
+    <div style="overflow-x: auto; width: 100%; max-width: 100%;">
+        <table style="width: 100%; table-layout: fixed;">
+            <thead>
+                <tr>
+                    <th style="width: auto;">Rank</th>
+                    <th style="width: auto;">Department</th>
+                    <th style="width: auto;">Branch</th>
+                    <th class="text-right" style="width: auto;">Gross Sale</th>
+                    <th class="text-right" style="width: auto;">Discount</th>
+                    <th class="text-right" style="width: auto;">Return</th>
+                    <th class="text-right" style="width: auto;">Sale Value</th>
+                    <th class="text-right" style="width: auto;">GST</th>
+                    <th class="text-right" style="width: auto;">Net Sale</th>
+                    <th class="text-right" style="width: auto;">Profit Margin %</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tableRows}
+            </tbody>
+        </table>
+    </div>
     
     <div class="print-footer">
         <p>Generated on ${currentDate} | D.Watson Group Of Pharmacies</p>
+    </div>
     </div>
 </body>
 </html>`;
@@ -33708,6 +33912,7 @@ sortedBranches.forEach(data => {
             const dateTo = document.getElementById('branchComparisonReportDateTo').value;
             const categoryId = document.getElementById('branchComparisonReportCategory').value;
             const departmentId = document.getElementById('branchComparisonReportDepartment').value;
+            const orientation = document.getElementById('branchComparisonReportOrientation')?.value || 'portrait';
             
             const category = categoryId ? appData.categories?.find(c => c._id === categoryId) : null;
             const categoryName = category ? category.name : 'All Categories';
@@ -33724,6 +33929,9 @@ sortedBranches.forEach(data => {
             const tableBody = document.getElementById('branchComparisonReportTableBody');
             const tableRows = tableBody ? tableBody.innerHTML : '<tr><td colspan="9" class="text-center">No data available</td></tr>';
             
+            const pageSize = orientation === 'landscape' ? 'A4 landscape' : 'A4';
+            const pageMargin = orientation === 'landscape' ? '0.4in' : '0.75in';
+            
             const printContent = `
 <!DOCTYPE html>
 <html>
@@ -33734,47 +33942,58 @@ sortedBranches.forEach(data => {
         * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            box-sizing: border-box;
         }
         
         @page {
-            size: A4;
-            margin: 1in;
+            size: ${pageSize};
+            margin: ${pageMargin};
         }
         
         body {
             font-family: 'Arial', sans-serif;
-            font-size: 11pt;
+            font-size: ${orientation === 'landscape' ? '10pt' : '11pt'};
             line-height: 1.5;
             color: #000;
             background: #fff;
-            margin: 0;
-            padding: 20px;
+            margin: 0 auto;
+            padding: 0;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        .print-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
         }
         
         .print-header {
             text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #2c6e8a;
-            padding-bottom: 15px;
+            margin-bottom: ${orientation === 'landscape' ? '20px' : '30px'};
+            border-bottom: 2px solid #2c6e8a;
+            padding-bottom: ${orientation === 'landscape' ? '10px' : '15px'};
+            page-break-after: avoid;
         }
         
         .print-header h1 {
-            font-size: 28pt;
+            font-size: ${orientation === 'landscape' ? '20pt' : '28pt'};
             font-weight: bold;
-            margin: 0 0 10px 0;
+            margin: 0 0 8px 0;
             color: #2c6e8a;
         }
         
         .print-header .company-info {
-            font-size: 11pt;
+            font-size: ${orientation === 'landscape' ? '10pt' : '11pt'};
             color: #555;
-            margin: 5px 0;
+            margin: 4px 0;
         }
         
         .print-header .report-info {
-            font-size: 10pt;
+            font-size: ${orientation === 'landscape' ? '9pt' : '10pt'};
             color: #555;
-            margin: 10px 0 0 0;
+            margin: 6px 0 0 0;
             text-align: left;
             display: inline-block;
         }
@@ -33782,22 +34001,27 @@ sortedBranches.forEach(data => {
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
-            font-size: 10pt;
+            margin: 0 auto ${orientation === 'landscape' ? '15px' : '20px'} auto;
+            font-size: ${orientation === 'landscape' ? '8pt' : '10pt'};
+            table-layout: fixed;
+            word-wrap: break-word;
         }
         
         th {
             background-color: #2c6e8a;
             color: white;
-            padding: 12px;
+            padding: ${orientation === 'landscape' ? '6px 4px' : '12px'};
             text-align: left;
             border: 1px solid #1a4d63;
             font-weight: bold;
+            font-size: ${orientation === 'landscape' ? '8pt' : '10pt'};
         }
         
         td {
-            padding: 10px;
+            padding: ${orientation === 'landscape' ? '6px 4px' : '10px'};
             border: 1px solid #ddd;
+            font-size: ${orientation === 'landscape' ? '8pt' : '10pt'};
+            word-wrap: break-word;
         }
         
         tr:nth-child(even) {
@@ -33809,41 +34033,44 @@ sortedBranches.forEach(data => {
             background-color: #00685c !important;
             color: white !important;
             text-align: center;
-            padding: 15px;
+            padding: ${orientation === 'landscape' ? '8px' : '15px'};
             font-weight: 700;
-            font-size: 1.8rem;
-            border-bottom: 5px solid white !important;
+            font-size: ${orientation === 'landscape' ? '14pt' : '1.8rem'};
+            border-bottom: ${orientation === 'landscape' ? '2px' : '5px'} solid white !important;
         }
         
         .branch-header-row th {
             background-color: #000000 !important;
             color: white !important;
-            border-right: 2px solid white !important;
+            border-right: ${orientation === 'landscape' ? '1px' : '2px'} solid white !important;
             border-left: 1px solid #333 !important;
             border-top: 1px solid #333 !important;
             border-bottom: 1px solid #333 !important;
             font-weight: 700;
-            padding: 12px;
+            padding: ${orientation === 'landscape' ? '6px 4px' : '12px'};
+            font-size: ${orientation === 'landscape' ? '8pt' : '10pt'};
         }
         
         .department-total-row td {
             background-color: #e9ecef !important;
             font-weight: 700;
-            padding: 12px 15px;
+            padding: ${orientation === 'landscape' ? '7px 4px' : '12px 15px'};
+            font-size: ${orientation === 'landscape' ? '8pt' : '10pt'};
         }
         
         .branch-total-row td {
             background-color: #f8f9fa !important;
             font-weight: 700;
-            padding: 12px 15px;
+            padding: ${orientation === 'landscape' ? '7px 4px' : '12px 15px'};
+            font-size: ${orientation === 'landscape' ? '8pt' : '10pt'};
         }
         
         .grand-total-row td {
             background-color: #2c6e8a !important;
             color: white !important;
             font-weight: 700;
-            padding: 15px;
-            font-size: 1.1rem;
+            padding: ${orientation === 'landscape' ? '10px 4px' : '15px'};
+            font-size: ${orientation === 'landscape' ? '9pt' : '1.1rem'};
         }
         
         .text-right {
@@ -33855,31 +34082,51 @@ sortedBranches.forEach(data => {
         }
         
         .print-footer {
-            margin-top: 30px;
+            margin-top: ${orientation === 'landscape' ? '15px' : '30px'};
             text-align: center;
-            font-size: 9pt;
+            font-size: ${orientation === 'landscape' ? '8pt' : '9pt'};
             color: #666;
             border-top: 1px solid #ccc;
-            padding-top: 15px;
+            padding-top: ${orientation === 'landscape' ? '8px' : '15px'};
+            page-break-inside: avoid;
         }
         
         @media print {
             body {
                 padding: 0;
+                margin: 0 auto;
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .print-container {
+                width: 100%;
+                max-width: 100%;
+                margin: 0 auto;
             }
             
             table {
                 page-break-inside: auto;
+                width: 100%;
+                max-width: 100%;
+                margin: 0 auto;
             }
             
             tr {
                 page-break-inside: avoid;
                 page-break-after: auto;
             }
+            
+            .branch-name-row,
+            .branch-header-row,
+            .grand-total-row {
+                page-break-inside: avoid;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="print-container">
     <div class="print-header">
         <h1>D.Watson Group Of Pharmacies</h1>
         <div class="company-info">Branch-Wise Sale Comparison</div>
@@ -33891,27 +34138,30 @@ sortedBranches.forEach(data => {
         </div>
     </div>
     
-    <table>
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>Branch</th>
-                <th class="text-right">Gross Sale</th>
-                <th class="text-right">Discount</th>
-                <th class="text-right">Return</th>
-                <th class="text-right">Sale Value</th>
-                <th class="text-right">GST</th>
-                <th class="text-right">Net Sale</th>
-                <th class="text-right">Profit Margin %</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${tableRows}
-        </tbody>
-    </table>
+    <div style="overflow-x: auto; width: 100%; max-width: 100%;">
+        <table style="width: 100%; table-layout: fixed;">
+            <thead>
+                <tr>
+                    <th style="width: auto;">Rank</th>
+                    <th style="width: auto;">Branch</th>
+                    <th class="text-right" style="width: auto;">Gross Sale</th>
+                    <th class="text-right" style="width: auto;">Discount</th>
+                    <th class="text-right" style="width: auto;">Return</th>
+                    <th class="text-right" style="width: auto;">Sale Value</th>
+                    <th class="text-right" style="width: auto;">GST</th>
+                    <th class="text-right" style="width: auto;">Net Sale</th>
+                    <th class="text-right" style="width: auto;">Profit Margin %</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tableRows}
+            </tbody>
+        </table>
+    </div>
     
     <div class="print-footer">
         <p>Generated on ${currentDate} | D.Watson Group Of Pharmacies</p>
+    </div>
     </div>
 </body>
 </html>`;
@@ -34201,7 +34451,7 @@ sortedBranches.forEach(data => {
         
         @page {
             size: A4;
-            margin: 1in;
+            margin: 0.75in;
         }
         
         body {

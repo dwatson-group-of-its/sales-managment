@@ -472,7 +472,15 @@
             </div>
         </div>
         <div class="row mb-4">
-            <div class="col-md-12">
+            <div class="col-md-6">
+                <div class="card text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #6f42c1 0%, #9c27b0 100%);">
+                    <div class="card-body">
+                        <h6 class="text-white mb-2">Total Cost</h6>
+                        <h2 class="text-white mb-0" id="deptWiseSummaryTotalCost">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
                 <div class="card text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #4D4D4D 0%, #6c757d 100%);">
                     <div class="card-body">
                         <h6 class="text-white mb-2">Net Sale</h6>
@@ -488,9 +496,15 @@
                         <h5 class="card-title mb-0">Department-Wise Report</h5>
                         <div id="deptWiseReportSubtitle" class="text-muted small mt-1" style="display: none;"></div>
                     </div>
-                    <button class="btn btn-success no-print" id="printDeptWiseReportBtn">
-                        <i class="fas fa-print me-2"></i>Print Report
-                    </button>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select class="form-select no-print" id="deptWiseReportOrientation" style="width: auto;">
+                            <option value="portrait">Portrait</option>
+                            <option value="landscape">Landscape</option>
+                        </select>
+                        <button class="btn btn-success no-print" id="printDeptWiseReportBtn">
+                            <i class="fas fa-print me-2"></i>Print Report
+                        </button>
+                    </div>
                 </div>
                 <h4 id="deptWiseReportBranchName" class="text-center mt-2 mb-3" style="display: none; font-weight: 600; background-color: #2c6e8a; color: white; padding: 15px; border-radius: 5px;"></h4>
                 <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
@@ -616,9 +630,15 @@
                         <h5 class="card-title mb-0">Sub-Department-Wise Report</h5>
                         <div id="subDeptWiseReportSubtitle" class="text-muted small mt-1" style="display: none;"></div>
                     </div>
-                    <button class="btn btn-success no-print" id="printSubDeptWiseReportBtn">
-                        <i class="fas fa-print me-2"></i>Print Report
-                    </button>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select class="form-select no-print" id="subDeptWiseReportOrientation" style="width: auto;">
+                            <option value="portrait">Portrait</option>
+                            <option value="landscape">Landscape</option>
+                        </select>
+                        <button class="btn btn-success no-print" id="printSubDeptWiseReportBtn">
+                            <i class="fas fa-print me-2"></i>Print Report
+                        </button>
+                    </div>
                 </div>
                 <h4 id="subDeptWiseReportBranchName" class="text-center mt-2 mb-3" style="display: none; font-weight: 600;"></h4>
                 <div class="table-responsive">
@@ -694,9 +714,15 @@
                         <h5 class="card-title mb-0">Department-Wise Sale Comparison</h5>
                         <div id="deptComparisonReportSubtitle" class="text-muted small mt-1" style="display: none;"></div>
                     </div>
-                    <button class="btn btn-success no-print" id="printDeptComparisonReportBtn">
-                        <i class="fas fa-print me-2"></i>Print Report
-                    </button>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select class="form-select no-print" id="deptComparisonReportOrientation" style="width: auto;">
+                            <option value="portrait">Portrait</option>
+                            <option value="landscape">Landscape</option>
+                        </select>
+                        <button class="btn btn-success no-print" id="printDeptComparisonReportBtn">
+                            <i class="fas fa-print me-2"></i>Print Report
+                        </button>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover">
@@ -771,9 +797,15 @@
                         <h5 class="card-title mb-0">Branch-Wise Sale Comparison</h5>
                         <div id="branchComparisonReportSubtitle" class="text-muted small mt-1" style="display: none;"></div>
                     </div>
-                    <button class="btn btn-success no-print" id="printBranchComparisonReportBtn">
-                        <i class="fas fa-print me-2"></i>Print Report
-                    </button>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select class="form-select no-print" id="branchComparisonReportOrientation" style="width: auto;">
+                            <option value="portrait">Portrait</option>
+                            <option value="landscape">Landscape</option>
+                        </select>
+                        <button class="btn btn-success no-print" id="printBranchComparisonReportBtn">
+                            <i class="fas fa-print me-2"></i>Print Report
+                        </button>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover">
